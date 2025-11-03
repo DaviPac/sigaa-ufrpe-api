@@ -29,7 +29,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://conecta-ufrpe.vercel.app/"}, // seu frontend
+		AllowOrigins:     []string{"https://conecta-ufrpe.vercel.app"}, // seu frontend
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
