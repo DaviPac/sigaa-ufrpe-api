@@ -1,0 +1,246 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API que interage com o SIGAA (login, turmas, etc).",
+        "title": "SIGAA API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Faz login no SIGAA",
+                "parameters": [
+                    {
+                        "description": "Credenciais do usuário",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main-data": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIGAA"
+                ],
+                "summary": "Retorna dados principais (nome e turmas)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/turma": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIGAA"
+                ],
+                "summary": "Retorna dados detalhados de uma turma (POST)",
+                "parameters": [
+                    {
+                        "description": "Turma e viewState",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.TurmaPostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.TurmaData": {
+            "type": "object",
+            "properties": {
+                "faltas": {
+                    "type": "integer"
+                },
+                "info": {
+                    "$ref": "#/definitions/main.TurmaInfo"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "notas": {
+                    "type": "array",
+                    "items": {
+                        "type": "number",
+                        "format": "float64"
+                    }
+                }
+            }
+        },
+        "main.TurmaInfo": {
+            "type": "object",
+            "properties": {
+                "componentId": {
+                    "type": "string"
+                },
+                "formName": {
+                    "type": "string"
+                },
+                "frontEndId": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.TurmaPostRequest": {
+            "type": "object",
+            "required": [
+                "turma",
+                "viewState"
+            ],
+            "properties": {
+                "turma": {
+                    "description": "Envie o objeto TurmaData completo que você obteve em /main-data.\nSe você só tiver o Info.FrontEndId, envie um TurmaData com Info preenchido.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/main.TurmaData"
+                        }
+                    ]
+                },
+                "viewState": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use \"Bearer {jsessionid}\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

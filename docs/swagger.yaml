@@ -1,0 +1,160 @@
+basePath: /
+definitions:
+  main.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  main.TurmaData:
+    properties:
+      faltas:
+        type: integer
+      info:
+        $ref: '#/definitions/main.TurmaInfo'
+      nome:
+        type: string
+      notas:
+        items:
+          format: float64
+          type: number
+        type: array
+    type: object
+  main.TurmaInfo:
+    properties:
+      componentId:
+        type: string
+      formName:
+        type: string
+      frontEndId:
+        type: string
+      nome:
+        type: string
+    type: object
+  main.TurmaPostRequest:
+    properties:
+      turma:
+        allOf:
+        - $ref: '#/definitions/main.TurmaData'
+        description: |-
+          Envie o objeto TurmaData completo que você obteve em /main-data.
+          Se você só tiver o Info.FrontEndId, envie um TurmaData com Info preenchido.
+      viewState:
+        type: string
+    required:
+    - turma
+    - viewState
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API que interage com o SIGAA (login, turmas, etc).
+  title: SIGAA API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credenciais do usuário
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Faz login no SIGAA
+      tags:
+      - Auth
+  /main-data:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retorna dados principais (nome e turmas)
+      tags:
+      - SIGAA
+  /turma:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Turma e viewState
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/main.TurmaPostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retorna dados detalhados de uma turma (POST)
+      tags:
+      - SIGAA
+securityDefinitions:
+  BearerAuth:
+    description: Use "Bearer {jsessionid}"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
