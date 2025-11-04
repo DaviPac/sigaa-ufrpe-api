@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 
 	_ "sigaaApi/docs"
@@ -29,7 +30,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://conecta-ufrpe.vercel.app"}, // seu frontend
+		AllowOrigins:     []string{"https://conecta-ufrpe.vercel.app", "http://localhost:4200"},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -41,6 +42,7 @@ func main() {
 	})
 
 	router.GET("/calendario", handleGetCalendario)
+	router.GET("/calendario/url", handleGetCalendarioURL)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -220,8 +222,71 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+func handleGetCalendarioURL(c *gin.Context) {
+	res, err := http.Get("https://preg.ufrpe.br/br/calendario-academico")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar a página"})
+		return
+	}
+	defer res.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar HTML"})
+		return
+	}
+
+	selection := doc.Find(".field-items > .field-item.even")
+	url, exists := selection.Last().Children().Last().Find("a").Attr("href")
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "PDF não encontrado"})
+		return
+	}
+
+	if !strings.HasPrefix(url, "http") {
+		url = "https://preg.ufrpe.br" + url
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"url": url,
+	})
+}
+
 func handleGetCalendario(c *gin.Context) {
-	url := "https://preg.ufrpe.br/sites/ww4.depaacademicos.ufrpe.br/files/Calendario%20cursos%20presenciais%202025%20final%20%282%29.pdf"
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "*")
+
+	if c.Request.Method == http.MethodOptions {
+		c.Status(http.StatusOK)
+		return
+	}
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "https://preg.ufrpe.br/br/calendario-academico", nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+	res, err := client.Do(req)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Erro ao acessar o PDF: %v", err)
+		return
+	}
+	defer res.Body.Close()
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Erro ao acessar o PDF: %v", err)
+		return
+	}
+
+	selection := doc.Find(".field-items > .field-item.even")
+	url, exists := selection.Last().Children().Last().Find("a").Attr("href")
+	if !exists {
+		c.String(http.StatusNotFound, "Não foi possível encontrar o PDF")
+		return
+	}
+
+	if strings.HasPrefix(url, "/") {
+		url = "https://preg.ufrpe.br" + url
+	}
 
 	// Faz a requisição HTTP
 	resp, err := http.Get(url)
