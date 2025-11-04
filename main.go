@@ -223,7 +223,18 @@ func AuthMiddleware() gin.HandlerFunc {
 }
 
 func handleGetCalendarioURL(c *gin.Context) {
-	res, err := http.Get("https://preg.ufrpe.br/br/calendario-academico")
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "*")
+
+	if c.Request.Method == http.MethodOptions {
+		c.Status(http.StatusOK)
+		return
+	}
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "https://preg.ufrpe.br/br/calendario-academico", nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+	res, err := client.Do(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar a página"})
 		return
