@@ -76,7 +76,6 @@ func handleLogin(c *gin.Context) {
 		return
 	}
 
-	log.Println("🤖 Tentando login no SIGAA...")
 	jsessionid, err := repeatLoginReq(req.Username, req.Password, 0)
 	if err != nil {
 		fmt.Println(err)
