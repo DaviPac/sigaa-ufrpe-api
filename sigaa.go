@@ -43,6 +43,7 @@ func doSigaaRequest(method, url, jsessionid, referer string, body io.Reader, con
 	if err != nil {
 		return nil, jsessionid, fmt.Errorf("erro ao fazer requisição para %s: %w", url, err)
 	}
+	fmt.Printf("URL: %v -- STATUS: %v\n", resp.Request.URL, resp.StatusCode)
 	defer resp.Body.Close()
 
 	newJsessionid := jsessionid
@@ -107,7 +108,7 @@ func Login(username, password string) (string, error) {
 	re := regexp.MustCompile(`;jsessionid=[^?]+`)
 	cleanedActionUrl := re.ReplaceAllString(fullActionUrl, "")
 
-	_, newJsessionid, err := doSigaaRequest(
+	doc, newJsessionid, err := doSigaaRequest(
 		"POST",
 		cleanedActionUrl,
 		jsessionid,
@@ -119,7 +120,98 @@ func Login(username, password string) (string, error) {
 		return "", fmt.Errorf("erro ao submeter login: %w", err)
 	}
 
+	const selectorAviso = "input[type='submit'][value*='Continuar']"
+
+	if doc.Find(selectorAviso).Length() > 0 {
+		fmt.Println("⚠️ AvisoLogon detectado. Simulação do clique 'Continuar >>'.")
+
+		// A URL final alcançada após o POST de login será o referer
+		urlPtr := doc.Url
+		var refererAviso string
+		if urlPtr == nil {
+			// Se a URL final é nula, usamos a URL da página de login como fallback seguro.
+			// É menos preciso, mas evita o panic.
+			refererAviso = URL_VIEW_LOGIN // Use a URL de login como fallback
+		} else {
+			refererAviso = urlPtr.String() // Agora a chamada .String() é segura
+		}
+
+		// Simular o clique para prosseguir
+		_, newNewJsessionid, err := proceedFromAviso(
+			doc,
+			newJsessionid,
+			refererAviso,
+		)
+		if err != nil {
+			return "", err
+		}
+
+		// O resultado da navegação (dashboard ou falha) está em docProsseguiu
+		newJsessionid = newNewJsessionid
+	}
+
 	return newJsessionid, nil
+}
+
+// proceedFromAviso simula o clique no botão "Continuar >>"
+func proceedFromAviso(docAviso *goquery.Document, jsessionid, refererAviso string) (*goquery.Document, string, error) {
+
+	// 1. Encontrar o formulário e a URL de action
+	// O formulário tem o ID j_id_jsp_933481798_1
+	form := docAviso.Find("form").First()
+
+	actionPath, exists := form.Attr("action")
+	if !exists {
+		return nil, jsessionid, fmt.Errorf("não foi possível encontrar a action do formulário de aviso")
+	}
+	// A URL de action é relativa. Ex: /sigaa/telaAvisoLogon.jsf
+	// Assumindo o domínio: https://sigs.ufrpe.br
+	fullActionUrl := "https://sigs.ufrpe.br" + actionPath
+
+	// 2. Extrair o nome dinâmico do botão "Continuar >>"
+	botaoContinuar := form.Find("input[type='submit'][value*='Continuar']").First()
+
+	nameBotao, exists := botaoContinuar.Attr("name")
+	if !exists {
+		// Isso deve acontecer se o seletor não funcionar ou se o HTML mudar.
+		return nil, jsessionid, fmt.Errorf("erro: não foi possível encontrar o atributo 'name' do botão 'Continuar >>'")
+	}
+
+	// 3. Preparar o payload (dados a serem enviados no POST)
+	payload := url.Values{}
+
+	// a) O campo do próprio formulário (necessário para submissões JSF)
+	// O formulário tem name="j_id_jsp_933481798_1" e um hidden input com o mesmo name
+	payload.Set(form.AttrOr("name", ""), form.Find("input[type='hidden'][name='"+form.AttrOr("name", "")+"']").AttrOr("value", ""))
+
+	// b) O campo dinâmico do botão clicado
+	payload.Set(nameBotao, "Continuar >>")
+
+	// c) O ViewState (CRUCIAL para JSF)
+	viewStateValue := docAviso.Find("input[name='javax.faces.ViewState']").AttrOr("value", "")
+	if viewStateValue == "" {
+		return nil, jsessionid, fmt.Errorf("erro: não foi possível encontrar o campo ViewState")
+	}
+	payload.Set("javax.faces.ViewState", viewStateValue)
+
+	// 4. Limpar action URL de JSESSIONID se necessário
+	re := regexp.MustCompile(`;jsessionid=[^?]+`)
+	cleanedActionUrl := re.ReplaceAllString(fullActionUrl, "")
+
+	// 5. Executar o POST para prosseguir
+	docFinal, newJsessionid, err := doSigaaRequest(
+		"POST",
+		cleanedActionUrl,
+		jsessionid,
+		refererAviso, // Referer deve ser a URL da página de aviso (telaAvisoLogon.jsf)
+		strings.NewReader(payload.Encode()),
+		"application/x-www-form-urlencoded",
+	)
+	if err != nil {
+		return nil, newJsessionid, fmt.Errorf("erro ao simular clique em Continuar: %w", err)
+	}
+
+	return docFinal, newJsessionid, nil
 }
 
 func getPaginaPortal(jsessionid string) (*goquery.Document, string, string, error) {
