@@ -54,6 +54,7 @@ func main() {
 		api.POST("/turma", handlePostTurma)
 		api.POST("/matricula", handlePostMatricula)
 		api.POST("/historico", handlePostHistorico)
+		api.POST("/vinculo", handlePostVinculo)
 	}
 
 	router.POST("/login", handleLogin)
@@ -394,6 +395,48 @@ func handlePostHistorico(c *gin.Context) {
 	resp, err := FetchHistoricoPDF(req.ViewState, jsessionid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar histórico: " + err.Error()})
+		return
+	}
+	// Garante que o corpo da resposta do SIGAA será fechado após o envio ao cliente
+	defer resp.Body.Close()
+
+	// Define os cabeçalhos para o navegador entender que é um PDF
+	c.Header("Content-Type", "application/pdf")
+	// Dica: Use "inline" para abrir no navegador, ou "attachment" para forçar o download
+	c.Header("Content-Disposition", "attachment; filename=historico.pdf")
+
+	// Faz o stream direto do SIGAA para o client do seu app (alta performance)
+	io.Copy(c.Writer, resp.Body)
+}
+
+type VinculoRequest struct {
+	ViewState string `json:"viewState" binding:"required"`
+}
+
+// @Summary Retorna o PDF do Vínculo do aluno
+// @Tags SIGAA
+// @Accept json
+// @Produce application/pdf
+// @Param body body VinculoRequest true "ViewState"
+// @Success 200 {file} file "Vínculo em PDF"
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /vinculo [post]
+// @Security BearerAuth
+func handlePostVinculo(c *gin.Context) {
+	var req VinculoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
+		return
+	}
+
+	jsessionid := c.GetString("jsessionid")
+
+	// Chama a função que retorna o stream do PDF
+	resp, err := FetchVinculoPDF(req.ViewState, jsessionid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar vínculo: " + err.Error()})
 		return
 	}
 	// Garante que o corpo da resposta do SIGAA será fechado após o envio ao cliente
