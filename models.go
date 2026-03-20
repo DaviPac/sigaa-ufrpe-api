@@ -79,3 +79,24 @@ type LoginResponse struct {
 	Nome   string      `json:"nome"`
 	Turmas []TurmaData `json:"turmas"`
 }
+
+type TurmaAtestado struct {
+	Codigo    string `json:"codigo"`
+	Nome      string `json:"nome"`
+	Professor string `json:"professor"`
+	Local     string `json:"local"`
+	Tipo      string `json:"tipo"`
+	Status    string `json:"status"`
+	Horario   string `json:"horario"`
+}
+
+type AtestadoMatricula struct {
+	PeriodoLetivo     string          `json:"periodoLetivo"`
+	Matricula         string          `json:"matricula"`
+	Vinculo           string          `json:"vinculo"`
+	Nome              string          `json:"nome"`
+	Nivel             string          `json:"nivel"`
+	Curso             string          `json:"curso"`
+	Turmas            []TurmaAtestado `json:"turmas"`
+	CodigoVerificacao string          `json:"codigoVerificacao"`
+}

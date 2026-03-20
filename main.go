@@ -52,6 +52,7 @@ func main() {
 		api.GET("/main-data", handleGetMainData)
 		api.POST("/notas", handlePostNotas)
 		api.POST("/turma", handlePostTurma)
+		api.POST("/matricula", handlePostMatricula)
 	}
 
 	router.POST("/login", handleLogin)
@@ -317,4 +318,49 @@ func handleGetCalendario(c *gin.Context) {
 
 	// Copia o conteúdo do PDF diretamente para a resposta HTTP
 	io.Copy(c.Writer, resp.Body)
+}
+
+type MatriculaRequest struct {
+	ViewState string `json:"viewState" binding:"required"`
+}
+
+// @Summary Retorna dados estruturados do atestado de matrícula
+// @Tags SIGAA
+// @Accept json
+// @Produce json
+// @Param body body MatriculaRequest true "ViewState"
+// @Success 200 {object} AtestadoMatricula
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /turma [post]
+// @Security BearerAuth
+func handlePostMatricula(c *gin.Context) {
+	var req MatriculaRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "JSON inválido: " + err.Error(),
+		})
+		return
+	}
+
+	jsessionid := c.GetString("jsessionid")
+
+	html, _, err := GetAtestadoMatricula(req.ViewState, jsessionid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Erro ao buscar matrícula: " + err.Error(),
+		})
+		return
+	}
+
+	atestado, err := ParseAtestadoMatricula(html)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Erro ao parsear atestado: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, atestado)
 }

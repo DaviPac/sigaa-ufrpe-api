@@ -14,13 +14,14 @@ import (
 )
 
 const (
-	URL_VIEW_LOGIN      = "https://sigs.ufrpe.br/sigaa/verTelaLogin.do"
-	URL_PORTAL_DISCENTE = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
-	URL_FREQUENCIA      = "https://sigs.ufrpe.br/sigaa/ava/index.jsf"
-	USER_AGENT          = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+	URL_VIEW_LOGIN         = "https://sigs.ufrpe.br/sigaa/verTelaLogin.do"
+	URL_PORTAL_DISCENTE    = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
+	URL_FREQUENCIA         = "https://sigs.ufrpe.br/sigaa/ava/index.jsf"
+	USER_AGENT             = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+	URL_ATESTADO_MATRICULA = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
 )
 
-func doSigaaRequest(method, url, jsessionid, referer string, body io.Reader, contentType string) (*goquery.Document, string, error) {
+func doSigaaRequest(method string, url string, jsessionid string, referer string, body io.Reader, contentType string) (*goquery.Document, string, error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest(method, url, body)
@@ -81,6 +82,115 @@ func parseViewState(doc *goquery.Document, errorContext string) (string, error) 
 		return "", fmt.Errorf("não foi possível encontrar o javax.faces.ViewState na página: %s", errorContext)
 	}
 	return viewStateVal, nil
+}
+
+func GetAtestadoMatricula(viewState string, jsessionid string) (string, string, error) {
+	payload := url.Values{}
+	payload.Set("menu:form_menu_discente", "menu:form_menu_discente")
+	payload.Set("id", "107543")
+	payload.Set("jscook_action", "menu_form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatricula }")
+	payload.Set("javax.faces.ViewState", viewState)
+
+	doc, newJsessionid, err := doSigaaRequest(
+		"POST",
+		URL_PORTAL_DISCENTE,
+		jsessionid,
+		URL_PORTAL_DISCENTE,
+		strings.NewReader(payload.Encode()),
+		"application/x-www-form-urlencoded",
+	)
+	if err != nil {
+		return "", "", err
+	}
+
+	return doc.Text(), newJsessionid, nil
+}
+
+func ParseAtestadoMatricula(htmlContent string) (*AtestadoMatricula, error) {
+	atestado := &AtestadoMatricula{}
+
+	extract := func(pattern string) string {
+		re := regexp.MustCompile(pattern)
+		m := re.FindStringSubmatch(htmlContent)
+		if len(m) > 1 {
+			return strings.TrimSpace(m[1])
+		}
+		return ""
+	}
+
+	// Período Letivo
+	atestado.PeriodoLetivo = extract(`Letivo:\s*\n+\s*(\d{4}\.\d)`)
+
+	// Nível
+	atestado.Nivel = extract(`N[íi]vel:\s*\n?\s*([A-ZÇÃÕÁÉÍÓÚÂÊÎÔÛ ]+)`)
+
+	// Matrícula
+	atestado.Matricula = extract(`Matr[íi]cula:\s*\n?\s*(\d+)`)
+
+	// Vínculo
+	atestado.Vinculo = extract(`V[íi]nculo:\s*\n?\s*([A-ZÇÃÕÁÉÍÓÚÂÊÎÔÛ]+)`)
+
+	// Nome
+	atestado.Nome = extract(`Nome:\s*\n?\s*([A-ZÇÃÕÁÉÍÓÚÂÊÎÔÛ ]+)`)
+
+	// Curso
+	atestado.Curso = extract(`Curso:\s*\n?\s*([^\n]+)`)
+
+	// Código de verificação
+	atestado.CodigoVerificacao = extract(`c[oó]digo de verifica[cç][aã]o\s+(\w+)`)
+
+	// Turmas
+	// Cada turma tem o padrão:
+	//   <código 5 dígitos>
+	//   <NOME DA DISCIPLINA>
+	//   <Nome do Professor>
+	//   Tipo:
+	//   <TIPO>
+	//   (data)
+	//   Local: <LOCAL>
+	//   <turma número>
+	//   <STATUS>
+	//   <horário> (data)
+	turmaRe := regexp.MustCompile(
+		`(?m)^\s*(\d{5})\s*\n` + // código
+			`\s*([A-ZÇÃÕÁÉÍÓÚÂÊÎÔÛÀÈÌÒÙÄËÏÖÜ /]+)\s*\n` + // nome disciplina
+			`\s*([A-ZÇÃÕÁÉÍÓÚÂÊÎÔÛÀÈÌÒÙÄËÏÖÜ ]+)\s*\n` + // professor
+			`[\s\S]*?Tipo:\s*\n\s*([^\n(]+)` + // tipo
+			`[\s\S]*?Local:\s*([^\n]+)` + // local
+			`[\s\S]*?\n\s*(\d+)\s*\n` + // número da turma
+			`\s*(MATRICULADO|INDEFERIDO|CANCELADO|TRANCADO|DISPENSADO)\s*\n` + // status
+			`\s*((?:[2-7][MmTtNn]\d+\s*)+)`, // horário
+	)
+
+	matches := turmaRe.FindAllStringSubmatch(htmlContent, -1)
+	for _, m := range matches {
+		turma := TurmaAtestado{
+			Codigo:    strings.TrimSpace(m[1]),
+			Nome:      strings.TrimSpace(m[2]),
+			Professor: strings.TrimSpace(m[3]),
+			Tipo:      strings.TrimSpace(m[4]),
+			Local:     strings.TrimSpace(m[5]),
+			Status:    strings.TrimSpace(m[7]),
+			Horario:   strings.TrimSpace(m[8]),
+		}
+		atestado.Turmas = append(atestado.Turmas, turma)
+	}
+
+	return atestado, nil
+}
+
+// helper para aplicar regex em uma string específica
+func extract_from(src, pattern string) string {
+	re := regexp.MustCompile(pattern)
+	m := re.FindStringSubmatch(src)
+	if len(m) > 1 {
+		return strings.TrimSpace(m[1])
+	}
+	// Se não tem grupo de captura, retorna o match inteiro
+	if len(m) > 0 {
+		return strings.TrimSpace(m[0])
+	}
+	return ""
 }
 
 func Login(username, password string) (string, error) {
