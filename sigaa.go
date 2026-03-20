@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -82,6 +83,47 @@ func parseViewState(doc *goquery.Document, errorContext string) (string, error) 
 		return "", fmt.Errorf("não foi possível encontrar o javax.faces.ViewState na página: %s", errorContext)
 	}
 	return viewStateVal, nil
+}
+
+func FetchHistoricoPDF(viewState string, jsessionid string) (*http.Response, error) {
+	payload := url.Values{}
+	payload.Set("menu:form_menu_discente", "menu:form_menu_discente")
+	// Lembre-se: verifique se esse ID '107543' funciona para todos os alunos ou se precisará ser dinâmico
+	payload.Set("id", "107543")
+	payload.Set("jscook_action", "menu_form_menu_discente_discente_menu:A]#{ portalDiscente.historico }")
+	payload.Set("javax.faces.ViewState", viewState)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", URL_PORTAL_DISCENTE, strings.NewReader(payload.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar requisição do histórico: %w", err)
+	}
+
+	// Adicionando os headers essenciais
+	req.Header.Set("User-Agent", USER_AGENT)
+	req.Header.Set("Referer", URL_PORTAL_DISCENTE)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Cookie", jsessionid)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao solicitar histórico ao SIGAA: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("status code inesperado: %d", resp.StatusCode)
+	}
+
+	// Verificação de segurança: checa se o SIGAA devolveu mesmo um PDF
+	// Se a sessão expirou, ele geralmente retorna um HTML (Content-Type: text/html)
+	if !strings.Contains(resp.Header.Get("Content-Type"), "application/pdf") {
+		resp.Body.Close()
+		return nil, errors.New("a resposta não é um PDF. A sessão pode ter expirado ou o ViewState é inválido")
+	}
+
+	// Retornamos o response inteiro (sem fechar o Body) para que o Handler faça o stream
+	return resp, nil
 }
 
 func GetAtestadoMatricula(viewState string, jsessionid string) (string, string, error) {

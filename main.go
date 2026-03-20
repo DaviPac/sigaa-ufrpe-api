@@ -53,6 +53,7 @@ func main() {
 		api.POST("/notas", handlePostNotas)
 		api.POST("/turma", handlePostTurma)
 		api.POST("/matricula", handlePostMatricula)
+		api.POST("/historico", handlePostHistorico)
 	}
 
 	router.POST("/login", handleLogin)
@@ -363,4 +364,46 @@ func handlePostMatricula(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, atestado)
+}
+
+type HistoricoRequest struct {
+	ViewState string `json:"viewState" binding:"required"`
+}
+
+// @Summary Retorna o PDF do Histórico do aluno
+// @Tags SIGAA
+// @Accept json
+// @Produce application/pdf
+// @Param body body HistoricoRequest true "ViewState"
+// @Success 200 {file} file "Histórico em PDF"
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /historico [post]
+// @Security BearerAuth
+func handlePostHistorico(c *gin.Context) {
+	var req HistoricoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
+		return
+	}
+
+	jsessionid := c.GetString("jsessionid")
+
+	// Chama a função que retorna o stream do PDF
+	resp, err := FetchHistoricoPDF(req.ViewState, jsessionid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar histórico: " + err.Error()})
+		return
+	}
+	// Garante que o corpo da resposta do SIGAA será fechado após o envio ao cliente
+	defer resp.Body.Close()
+
+	// Define os cabeçalhos para o navegador entender que é um PDF
+	c.Header("Content-Type", "application/pdf")
+	// Dica: Use "inline" para abrir no navegador, ou "attachment" para forçar o download
+	c.Header("Content-Disposition", "attachment; filename=historico.pdf")
+
+	// Faz o stream direto do SIGAA para o client do seu app (alta performance)
+	io.Copy(c.Writer, resp.Body)
 }
