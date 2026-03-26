@@ -32,9 +32,16 @@ type Noticia struct {
 	Conteudo []string `json:"conteudo"`
 }
 
+type ArquivoCronograma struct {
+	Nome  string `json:"nome"`
+	Chave string `json:"chave"` // Ex: formAva:j_id_jsp_1879301362_314:2...
+	ID    string `json:"id"`    // Ex: 78BAF65DEA73ACA64CCC34BC50B6916D82289CDC
+}
+
 type CronogramaItem struct {
-	Titulo   string `json:"titulo"`
-	Conteudo string `json:"conteudo"`
+	Titulo   string              `json:"titulo"`
+	Conteudo string              `json:"conteudo"`
+	Arquivos []ArquivoCronograma `json:"arquivos"`
 }
 
 type DisciplinaNotas struct {

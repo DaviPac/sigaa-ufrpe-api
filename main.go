@@ -55,6 +55,7 @@ func main() {
 		api.POST("/matricula", handlePostMatricula)
 		api.POST("/historico", handlePostHistorico)
 		api.POST("/vinculo", handlePostVinculo)
+		api.POST("/download", handlePostDownloadArquivo)
 	}
 
 	router.POST("/login", handleLogin)
@@ -449,4 +450,65 @@ func handlePostVinculo(c *gin.Context) {
 
 	// Faz o stream direto do SIGAA para o client do seu app (alta performance)
 	io.Copy(c.Writer, resp.Body)
+}
+
+type DownloadArquivoRequest struct {
+	ViewState string    `json:"viewState" binding:"required"`
+	Chave     string    `json:"chave" binding:"required"`
+	ID        string    `json:"id" binding:"required"`
+	Turma     TurmaData `json:"turma" binding:"required"`
+}
+
+// @Summary Baixa um arquivo do cronograma da turma
+// @Tags SIGAA
+// @Accept json
+// @Produce application/octet-stream
+// @Param body body DownloadArquivoRequest true "Dados do Arquivo"
+// @Success 200 {file} file "Arquivo baixado"
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /turma/arquivo [post]
+// @Security BearerAuth
+func handlePostDownloadArquivo(c *gin.Context) {
+	var req DownloadArquivoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
+		return
+	}
+
+	jsessionid := c.GetString("jsessionid")
+
+	// Chama a função que faz o POST pro Sigaa e retorna o stream e os novos estados
+	resp, newJsessionid, newViewState, err := BaixarArquivoSigaa(jsessionid, req.ViewState, req.Chave, req.ID, req.Turma)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao baixar arquivo: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	// -------------------------------------------------------------------------
+	// ADIÇÃO DOS ESTADOS NOS HEADERS
+	// Como o body será o arquivo, enviamos os novos estados via headers HTTP
+	// -------------------------------------------------------------------------
+	c.Header("X-New-Jsessionid", newJsessionid)
+	c.Header("X-New-Viewstate", newViewState)
+
+	c.Header("Access-Control-Expose-Headers", "X-New-Jsessionid, X-New-Viewstate, Content-Disposition")
+
+	// Repassa os headers originais do arquivo vindos do Sigaa para o cliente.
+	for k, values := range resp.Header {
+		for _, v := range values {
+			c.Writer.Header().Add(k, v)
+		}
+	}
+
+	// Define o status HTTP de sucesso (geralmente 200)
+	c.Status(resp.StatusCode)
+
+	// Faz o stream direto do Sigaa para o cliente da sua API
+	_, err = io.Copy(c.Writer, resp.Body)
+	if err != nil {
+		fmt.Printf("Erro ao fazer stream do arquivo: %v\n", err)
+	}
 }

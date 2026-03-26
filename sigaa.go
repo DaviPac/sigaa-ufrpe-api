@@ -22,6 +22,11 @@ const (
 	URL_ATESTADO_MATRICULA = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
 )
 
+var (
+	reJSFChave = regexp.MustCompile(`'(formAva:[^']+)'\s*:`)
+	reJSFId    = regexp.MustCompile(`'id'\s*:\s*'([^']+)'`)
+)
+
 func doSigaaRequest(method string, url string, jsessionid string, referer string, body io.Reader, contentType string) (*goquery.Document, string, error) {
 	client := &http.Client{}
 
@@ -259,20 +264,6 @@ func ParseAtestadoMatricula(htmlContent string) (*AtestadoMatricula, error) {
 	}
 
 	return atestado, nil
-}
-
-// helper para aplicar regex em uma string específica
-func extract_from(src, pattern string) string {
-	re := regexp.MustCompile(pattern)
-	m := re.FindStringSubmatch(src)
-	if len(m) > 1 {
-		return strings.TrimSpace(m[1])
-	}
-	// Se não tem grupo de captura, retorna o match inteiro
-	if len(m) > 0 {
-		return strings.TrimSpace(m[0])
-	}
-	return ""
 }
 
 func Login(username, password string) (string, error) {
@@ -608,6 +599,76 @@ func parseNoticia(doc *goquery.Document) (Noticia, error) {
 	return noticia, nil
 }
 
+func BaixarArquivoSigaa(jsessionid string, viewState string, chave string, fileId string, turma TurmaData) (*http.Response, string, string, error) {
+	urlAva := URL_FREQUENCIA
+	// 1. Pegamos o novo JSESSIONID e ViewState da turma
+	_, _, newJsessionid, newViewState, err := getPaginaTurma(turma, jsessionid, viewState)
+	if err != nil {
+		return nil, jsessionid, viewState, fmt.Errorf("erro ao acessar página da turma para obter novo ViewState: %w", err)
+	}
+
+	payload := url.Values{}
+	payload.Set("formAva", "formAva")
+	payload.Set("formAva:idTopicoSelecionado", "0")
+	payload.Set("javax.faces.ViewState", newViewState) // Usa o ViewState atualizado
+	payload.Set(chave, chave)
+	payload.Set("id", fileId)
+
+	req, err := http.NewRequest("POST", urlAva, strings.NewReader(payload.Encode()))
+	if err != nil {
+		return nil, newJsessionid, newViewState, fmt.Errorf("erro ao criar requisição de download: %w", err)
+	}
+
+	// 2. Cabeçalhos idênticos aos usados na sua doSigaaRequest
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", USER_AGENT) // Usa a mesma constante do seu projeto!
+	req.Header.Set("Referer", urlAva)
+
+	// 3. Atualizamos o Cookie (passando a string diretamente, pois ela já contém "JSESSIONID=")
+	if newJsessionid != "" {
+		req.Header.Set("Cookie", newJsessionid)
+	}
+
+	client := &http.Client{
+		// Impede o redirecionamento automático para pegarmos o erro 302 (expirada.jsp)
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, newJsessionid, newViewState, fmt.Errorf("erro ao executar requisição de download: %w", err)
+	}
+
+	// Se for status 302 (Found), o Sigaa está redirecionando
+	if resp.StatusCode == http.StatusFound {
+		redirectUrl, _ := resp.Location()
+		resp.Body.Close()
+		return nil, newJsessionid, newViewState, fmt.Errorf("sigaa negou o download e tentou redirecionar para: %s (Verifique os cookies)", redirectUrl)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, newJsessionid, newViewState, fmt.Errorf("falha no download, status code inesperado: %d", resp.StatusCode)
+	}
+
+	// Verifica se a resposta é realmente um arquivo ou se o Sigaa retornou um HTML de erro
+	contentType := resp.Header.Get("Content-Type")
+	if strings.Contains(contentType, "text/html") {
+		resp.Body.Close()
+		return nil, newJsessionid, newViewState, fmt.Errorf("o sigaa retornou uma página HTML em vez do arquivo")
+	}
+
+	_, finalJsessionid, finalViewState, err := getPaginaPortal(newJsessionid)
+
+	if err != nil {
+		return resp, newJsessionid, newViewState, nil
+	}
+
+	return resp, finalJsessionid, finalViewState, nil
+}
+
 func parseCronograma(doc *goquery.Document) ([]CronogramaItem, error) {
 	var cronograma []CronogramaItem
 	panel := doc.Find("#formAva\\:panelTopicosNaoSelecionados")
@@ -646,8 +707,39 @@ func parseCronograma(doc *goquery.Document) ([]CronogramaItem, error) {
 			conteudo = strings.Join(textParts, " ")
 		}
 
+		var arquivos []ArquivoCronograma
+		// Busca todas as tags <a> que possuem um onclick contendo 'jsfcljs'
+		eventoDiv.Find("a[onclick*='jsfcljs']").Each(func(k int, a *goquery.Selection) {
+			nomeArquivo := strings.TrimSpace(a.Text())
+			onclickJS, exists := a.Attr("onclick")
+
+			if exists {
+				chaveMatch := reJSFChave.FindStringSubmatch(onclickJS)
+				idMatch := reJSFId.FindStringSubmatch(onclickJS)
+
+				chave := ""
+				id := ""
+
+				if len(chaveMatch) > 1 {
+					chave = chaveMatch[1]
+				}
+				if len(idMatch) > 1 {
+					id = idMatch[1]
+				}
+
+				// Se conseguiu achar os identificadores, adiciona à lista
+				if chave != "" && id != "" {
+					arquivos = append(arquivos, ArquivoCronograma{
+						Nome:  nomeArquivo,
+						Chave: chave,
+						ID:    id,
+					})
+				}
+			}
+		})
+
 		if titulo != "" {
-			cronograma = append(cronograma, CronogramaItem{Titulo: titulo, Conteudo: conteudo})
+			cronograma = append(cronograma, CronogramaItem{Titulo: titulo, Conteudo: conteudo, Arquivos: arquivos})
 		}
 	})
 
