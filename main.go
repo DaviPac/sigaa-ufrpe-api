@@ -7,9 +7,12 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	_ "sigaaApi/docs"
 
@@ -42,6 +45,7 @@ func main() {
 	})
 
 	router.GET("/calendario", handleGetCalendario)
+	router.GET("/turma/arquivo/download", handleGetDownload)
 	router.GET("/calendario/url", handleGetCalendarioURL)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -55,7 +59,8 @@ func main() {
 		api.POST("/matricula", handlePostMatricula)
 		api.POST("/historico", handlePostHistorico)
 		api.POST("/vinculo", handlePostVinculo)
-		api.POST("/download", handlePostDownloadArquivo)
+		//api.POST("/download", handlePostDownloadArquivo)
+		api.POST("/turma/arquivo/preparar", handlePostPrepararArquivo)
 	}
 
 	router.POST("/login", handleLogin)
@@ -510,5 +515,82 @@ func handlePostDownloadArquivo(c *gin.Context) {
 	_, err = io.Copy(c.Writer, resp.Body)
 	if err != nil {
 		fmt.Printf("Erro ao fazer stream do arquivo: %v\n", err)
+	}
+}
+
+var downloadCache sync.Map
+
+type CachedFile struct {
+	Data        []byte
+	ContentType string
+	Filename    string
+}
+
+// 1. ROTA POST: Prepara o download
+func handlePostPrepararArquivo(c *gin.Context) {
+	var req DownloadArquivoRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
+		return
+	}
+
+	jsessionid := c.GetString("jsessionid")
+
+	// Faz a requisição pro SIGAA. Aqui o arquivo vem pra RAM do seu servidor Go.
+	resp, newJsessionid, newViewState, err := BaixarArquivoSigaa(jsessionid, req.ViewState, req.Chave, req.ID, req.Turma)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro no Sigaa"})
+		return
+	}
+	defer resp.Body.Close()
+
+	// Lê o arquivo todo
+	fileBytes, _ := io.ReadAll(resp.Body)
+
+	// Pega o nome do arquivo do header do Sigaa
+	filename := "arquivo_sigaa"
+	cd := resp.Header.Get("Content-Disposition")
+	if strings.Contains(cd, "filename=") {
+		parts := strings.Split(cd, "filename=")
+		filename = strings.ReplaceAll(strings.Split(parts[1], ";")[0], "\"", "")
+	}
+
+	// Gera um ticket único
+	ticket := uuid.New().String() // ou gere uma string aleatória
+
+	// Salva no cache
+	downloadCache.Store(ticket, CachedFile{
+		Data:        fileBytes,
+		ContentType: resp.Header.Get("Content-Type"),
+		Filename:    filename,
+	})
+
+	// Limpa o cache após 2 minutos (pra não vazar RAM se o usuário desistir)
+	go func(t string) {
+		time.Sleep(2 * time.Minute)
+		downloadCache.Delete(t)
+	}(ticket)
+
+	// Retorna SÓ os estados e o ticket pro Angular
+	c.JSON(http.StatusOK, gin.H{
+		"ticket":        ticket,
+		"newJsessionid": newJsessionid,
+		"newViewState":  newViewState,
+	})
+}
+
+// 2. ROTA GET: O celular chama essa rota nativamente
+func handleGetDownload(c *gin.Context) {
+	ticket := c.Query("ticket")
+	if val, ok := downloadCache.Load(ticket); ok {
+		file := val.(CachedFile)
+
+		c.Header("Content-Disposition", `attachment; filename="`+file.Filename+`"`)
+		c.Data(http.StatusOK, file.ContentType, file.Data)
+
+		// Apaga da memória assim que o download começar
+		downloadCache.Delete(ticket)
+	} else {
+		c.String(http.StatusNotFound, "Link expirado ou inválido")
 	}
 }
