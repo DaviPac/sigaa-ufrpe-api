@@ -62,6 +62,7 @@ type TurmaInfo struct {
 
 type TurmaData struct {
 	Nome       string           `json:"nome"`
+	Local      string           `json:"local"`
 	Horarios   []string         `json:"horarios"`
 	Notas      DisciplinaNotas  `json:"notas"`
 	Faltas     int              `json:"faltas"`

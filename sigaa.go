@@ -444,13 +444,16 @@ func parseTurmas(doc *goquery.Document) ([]TurmaData, []Avaliacao, error) {
 			return
 		}
 
+		tr := el.Closest("tr")
+		local := strings.TrimSpace(tr.Find("td.info").First().Text())
+
 		turmaInfo := TurmaInfo{
 			Nome:        nomeTurma,
 			FrontEndId:  frontEndId,
 			FormName:    formName,
 			ComponentId: componentId,
 		}
-		turmasData = append(turmasData, TurmaData{Nome: nomeTurma, Faltas: FALTAS_INDEFINIDAS, Info: turmaInfo})
+		turmasData = append(turmasData, TurmaData{Nome: nomeTurma, Local: local, Faltas: FALTAS_INDEFINIDAS, Info: turmaInfo})
 	})
 	if parseError != nil {
 		return nil, nil, parseError
