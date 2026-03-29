@@ -61,6 +61,7 @@ func main() {
 		api.POST("/vinculo", handlePostVinculo)
 		//api.POST("/download", handlePostDownloadArquivo)
 		api.POST("/turma/arquivo/preparar", handlePostPrepararArquivo)
+		api.GET("/turmas-stream", handleGetTurmasStream)
 	}
 
 	router.POST("/login", handleLogin)
@@ -215,6 +216,75 @@ func handlePostNotas(c *gin.Context) {
 		"viewState":  newViewState,
 		"notas":      notas,
 	})
+}
+
+// @Summary Retorna dados detalhados das turmas em tempo real (SSE)
+// @Tags SIGAA
+// @Produce text/event-stream
+// @Router /turmas-stream [get]
+// @Security BearerAuth
+func handleGetTurmasStream(c *gin.Context) {
+	jsessionid := c.GetString("jsessionid")
+
+	// 1. Configurar cabeçalhos HTTP exigidos para uma conexão SSE
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+	c.Writer.Header().Set("Connection", "keep-alive")
+	c.Writer.Header().Set("Transfer-Encoding", "chunked")
+
+	// 2. Busca inicial: Coleta as turmas básicas e o viewState inicial
+	_, _, _, _, turmasBasicas, currentJsessionid, currentViewState, err := GetMainData(jsessionid)
+	if err != nil {
+		c.SSEvent("error", gin.H{"error": "Erro ao carregar dados iniciais: " + err.Error()})
+		c.Writer.Flush()
+		return
+	}
+
+	// (Opcional) Envia um evento avisando o frontend quantas turmas serão carregadas
+	c.SSEvent("start", gin.H{"total": len(turmasBasicas)})
+	c.Writer.Flush()
+
+	// 3. Inicia o loop sequencial de raspagem
+	for _, turmaBasica := range turmasBasicas {
+		// Proteção importante: Verifica se o usuário fechou o PWA/cancelou a request
+		// Isso evita que o backend continue raspando o SIGAA como um zumbi
+		if c.Request.Context().Err() != nil {
+			log.Println("Cliente desconectou antes do fim do stream")
+			return
+		}
+
+		// Entra na turma, pega os detalhes e volta (estado atualizado)
+		turmaDetalhada, nextJsessionid, nextViewState, err := GetTurmaData(turmaBasica, currentJsessionid, currentViewState)
+		if err != nil {
+			// Informa erro de uma turma específica
+			c.SSEvent("error", gin.H{
+				"turma": turmaBasica, // manda qual falhou pra facilitar o debug
+				"error": "Falha ao ler turma: " + err.Error(),
+			})
+			c.Writer.Flush()
+
+			// Aqui você decide: 'return' para parar tudo, ou 'continue' para ignorar e tentar a próxima turma.
+			// Recomendo parar (return), pois o JSF do SIGAA provavelmente quebrou o viewState com o erro.
+			return
+		}
+
+		// Atualiza as variáveis de estado para a próxima iteração do loop
+		currentJsessionid = nextJsessionid
+		currentViewState = nextViewState
+
+		// Emite os dados da turma coletada!
+		c.SSEvent("turma", turmaDetalhada)
+		c.Writer.Flush() // O Flush() é obrigatório para forçar o envio imediato do "chunk"
+	}
+
+	// 4. Finaliza a transmissão enviando o viewState e jsessionid finais
+	// O frontend pode guardar isso para futuras ações (ex: baixar um arquivo de uma aula)
+	c.SSEvent("done", gin.H{
+		"message":    "Todas as turmas foram carregadas",
+		"jsessionid": currentJsessionid,
+		"viewState":  currentViewState,
+	})
+	c.Writer.Flush()
 }
 
 func AuthMiddleware() gin.HandlerFunc {
