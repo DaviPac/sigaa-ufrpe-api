@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"golang.org/x/net/html"
 )
 
 const (
@@ -684,8 +683,11 @@ func parseCronograma(doc *goquery.Document) ([]CronogramaItem, error) {
 		if eventoDiv.Length() == 0 {
 			return
 		}
-		titulo := strings.TrimSpace(eventoDiv.Children().Eq(0).Text())
-		conteudoDiv := eventoDiv.Children().Eq(1)
+
+		// Busca por classe é muito mais seguro do que usar Eq(0) e Eq(1)
+		titulo := strings.TrimSpace(eventoDiv.Find(".titulo").Text())
+		conteudoDiv := eventoDiv.Find(".conteudotopico")
+
 		if conteudoDiv.Length() == 0 {
 			if titulo != "" {
 				cronograma = append(cronograma, CronogramaItem{Titulo: titulo, Conteudo: ""})
@@ -693,24 +695,25 @@ func parseCronograma(doc *goquery.Document) ([]CronogramaItem, error) {
 			return
 		}
 
-		var conteudo string
-		p := conteudoDiv.Find("p")
-		if p.Length() > 0 {
-			conteudo = strings.TrimSpace(p.First().Text())
-		} else {
-			var textParts []string
-			conteudoDiv.Contents().Each(func(j int, s *goquery.Selection) {
-				if s.Get(0) != nil && s.Get(0).Type == html.TextNode {
-					text := strings.TrimSpace(s.Text())
-					if text != "" {
-						textParts = append(textParts, text)
-					}
-				}
-			})
-			conteudo = strings.Join(textParts, " ")
-		}
+		// --- INÍCIO DA CORREÇÃO DE CONTEÚDO ---
+
+		// 1. Clonamos a div para poder manipular e deletar lixos sem afetar o HTML original
+		cleanDiv := conteudoDiv.Clone()
+
+		// 2. Removemos elementos que têm texto/código que não queremos no nosso "Conteudo"
+		// Isso inclui códigos JavaScript, elementos de arrastar e a div de arquivos em anexo
+		// (pois você já extrai os arquivos separadamente abaixo)
+		cleanDiv.Find("script, .drgind_fly, span[id*='listaMateriais']").Remove()
+
+		// 3. Pegamos todo o texto restante da div limpa.
+		// O uso de strings.Fields combinado com Join remove quebras de linha sujas (\n, \t)
+		// e transforma tudo em uma string limpa separada por espaços simples.
+		conteudo := strings.Join(strings.Fields(cleanDiv.Text()), " ")
+
+		// --- FIM DA CORREÇÃO ---
 
 		var arquivos []ArquivoCronograma
+
 		// Busca todas as tags <a> que possuem um onclick contendo 'jsfcljs'
 		eventoDiv.Find("a[onclick*='jsfcljs']").Each(func(k int, a *goquery.Selection) {
 			nomeArquivo := strings.TrimSpace(a.Text())
