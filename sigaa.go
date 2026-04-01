@@ -19,6 +19,7 @@ const (
 	URL_FREQUENCIA         = "https://sigs.ufrpe.br/sigaa/ava/index.jsf"
 	USER_AGENT             = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 	URL_ATESTADO_MATRICULA = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
+	URL_CURRICULO          = "https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf"
 )
 
 var (
@@ -552,6 +553,196 @@ func parseCH(doc *goquery.Document) CargasHorarias {
 		}
 	})
 	return ch
+}
+
+func extractDynamicParams(doc *goquery.Document, payload *url.Values) error {
+	var onclickContent string
+	found := false
+
+	doc.Find("table#table_lt tbody tr").EachWithBreak(func(i int, s *goquery.Selection) bool {
+		if strings.Contains(s.Text(), "Ativa") {
+			link := s.Find("a[title='Visualizar Estrutura Curricular']")
+			if val, exists := link.Attr("onclick"); exists {
+				onclickContent = val
+				found = true
+				return false
+			}
+		}
+		return true
+	})
+
+	if !found {
+		return fmt.Errorf("currículo ativo ou botão de visualização não encontrados")
+	}
+
+	reDict := regexp.MustCompile(`jsfcljs\(.*?,\s*\{([^}]+)\}`)
+	matches := reDict.FindStringSubmatch(onclickContent)
+
+	if len(matches) < 2 {
+		return fmt.Errorf("não foi possível encontrar os parâmetros jsfcljs no onclick")
+	}
+
+	dictStr := matches[1] // String contendo: 'formCurriculos...':'form...', 'id':'28110657'
+
+	reKV := regexp.MustCompile(`'([^']+)'\s*:\s*'([^']+)'`)
+	kvMatches := reKV.FindAllStringSubmatch(dictStr, -1)
+
+	if len(kvMatches) == 0 {
+		return fmt.Errorf("nenhum par chave-valor encontrado dentro do jsfcljs")
+	}
+
+	for _, kv := range kvMatches {
+		key := kv[1]
+		value := kv[2]
+		payload.Set(key, value)
+	}
+
+	return nil
+}
+
+func cleanText(s string) string {
+	s = strings.ReplaceAll(s, "\u00a0", " ")
+	return strings.Join(strings.Fields(strings.TrimSpace(s)), " ")
+}
+
+func parseCurriculoData(doc *goquery.Document) (EstruturaCurricular, error) {
+	var curriculo EstruturaCurricular
+
+	// 1. Extrair Dados Gerais da Tabela Principal
+	doc.Find("table.formulario > tbody > tr").Each(func(i int, row *goquery.Selection) {
+		th := cleanText(row.Find("th").First().Text())
+		td := cleanText(row.Find("td").First().Text())
+
+		switch th {
+		case "Código:":
+			curriculo.Codigo = td
+		case "Matriz Curricular:":
+			curriculo.MatrizCurricular = td
+		case "Período Letivo de Entrada em Vigor:":
+			curriculo.PeriodoVigor = td
+		case "Total Mínima:":
+			curriculo.CargaHorariaTotalMin = td
+		case "Carga Horária Optativa Mínima:":
+			curriculo.CargaHorariaOptativaMin = td
+		case "Carga Horária Obrigatória Atividade Acadêmica Específica:":
+			curriculo.CargaHorariaObrigatoria = td
+		}
+	})
+
+	// Prazos estão aninhados em uma tabela interna, vamos buscar por regex ou seletores diretos
+	doc.Find("table.formulario > tbody > tr table tbody tr").Each(func(i int, row *goquery.Selection) {
+		row.Find("th").Each(func(j int, thSel *goquery.Selection) {
+			thText := cleanText(thSel.Text())
+			tdText := cleanText(thSel.NextFiltered("td").Text())
+
+			if thText == "Mínimo:" {
+				curriculo.PrazoMinimoSemestres = tdText
+			} else if thText == "Médio:" {
+				curriculo.PrazoMedioSemestres = tdText
+			} else if thText == "Máximo:" {
+				curriculo.PrazoMaximoSemestres = tdText
+			}
+		})
+	})
+
+	// 2. Extrair Disciplinas (Componentes Curriculares) das Abas
+	doc.Find("div.yui-content > div").Each(func(i int, tabDiv *goquery.Selection) {
+		tabID, exists := tabDiv.Attr("id") // Ex: "semestre1", "optativas"
+		if !exists {
+			return
+		}
+
+		// Identificar o nível/semestre
+		nivel := strings.Replace(tabID, "semestre", "", 1)
+
+		// Procurar por linhas de disciplinas (linhaPar ou linhaImpar)
+		tabDiv.Find("tr.linhaPar, tr.linhaImpar").Each(func(j int, tr *goquery.Selection) {
+			tds := tr.Find("td")
+			if tds.Length() >= 2 {
+				// td 0: "04341 - LÍNGUA BRASILEIRA DE SINAIS - LIBRAS - 60h"
+				rawInfo := cleanText(tds.Eq(0).Text())
+				// td 1: "Optativa" ou "Obrigatória" (dentro de um <i>)
+				tipo := cleanText(tds.Eq(1).Text())
+
+				// Quebrar a string "Código - Nome - Carga"
+				parts := strings.Split(rawInfo, " - ")
+				comp := ComponenteCurricular{
+					Tipo:  tipo,
+					Nivel: nivel,
+				}
+
+				if len(parts) >= 3 {
+					comp.Codigo = strings.TrimSpace(parts[0])
+					comp.CargaHoraria = strings.TrimSpace(parts[len(parts)-1])
+					// O nome pode conter hífen, então juntamos o que sobrar no meio
+					comp.Nome = strings.TrimSpace(strings.Join(parts[1:len(parts)-1], " - "))
+				} else {
+					// Fallback caso o padrão " - " fuja da regra
+					comp.Nome = rawInfo
+				}
+
+				curriculo.Componentes = append(curriculo.Componentes, comp)
+			}
+		})
+	})
+
+	return curriculo, nil
+}
+
+func getPaginaCurriculo(jsessionid string) (EstruturaCurricular, string, string, error) {
+	var curriculo EstruturaCurricular
+	doc, newJsessionid, viewState, err := getPaginaPortal(jsessionid)
+	if err != nil {
+		fmt.Printf("Erro ao acessar página do portal: %v\n", err)
+		return curriculo, "", "", err
+	}
+	re := regexp.MustCompile(`portal\.jsf\?id=(\d+)`)
+	match := re.FindStringSubmatch(doc.Text())
+
+	if len(match) < 2 {
+		return curriculo, "", "", fmt.Errorf("id do curso não encontrado no HTML")
+	}
+
+	cursoID := match[1]
+	cursoURL := fmt.Sprintf("https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=%s", cursoID)
+	doc, newJsessionid, err = doSigaaRequest("GET", cursoURL, newJsessionid, URL_PORTAL_DISCENTE, nil, "")
+	if err != nil {
+		fmt.Printf("Erro ao acessar página do currículo: %v\n", err)
+		return curriculo, "", "", err
+	}
+	viewState, err = parseViewState(doc, "curriculo")
+	if err != nil {
+		fmt.Printf("Erro ao parsear ViewState do currículo: %v\n", err)
+		return curriculo, "", "", err
+	}
+	payload := url.Values{}
+	payload.Set("formCurriculosCurso", "formCurriculosCurso")
+	payload.Set("nivel", "G")
+	payload.Set("javax.faces.ViewState", viewState)
+	err = extractDynamicParams(doc, &payload)
+	if err != nil {
+		fmt.Printf("Erro ao extrair parametros dinâmicos: %v\n", err)
+		return curriculo, "", "", err
+	}
+	doc, newJsessionid, err = doSigaaRequest(
+		"POST",
+		URL_CURRICULO,
+		newJsessionid,
+		URL_PORTAL_DISCENTE,
+		strings.NewReader(payload.Encode()),
+		"application/x-www-form-urlencoded",
+	)
+	if err != nil {
+		fmt.Printf("Erro ao acessar página do currículo com POST: %v\n", err)
+		return curriculo, "", "", err
+	}
+	curriculo, err = parseCurriculoData(doc)
+	if err != nil {
+		fmt.Printf("Erro ao parsear dados do currículo: %v\n", err)
+		return curriculo, "", "", err
+	}
+
+	return curriculo, newJsessionid, viewState, nil
 }
 
 func GetMainData(jsessionid string) (string, string, CargasHorarias, IndicesAcademicos, []Avaliacao, []TurmaData, string, string, error) {

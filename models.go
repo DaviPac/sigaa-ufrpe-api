@@ -108,3 +108,24 @@ type AtestadoMatricula struct {
 	Turmas            []TurmaAtestado `json:"turmas"`
 	CodigoVerificacao string          `json:"codigoVerificacao"`
 }
+
+type ComponenteCurricular struct {
+	Codigo       string `json:"codigo"`
+	Nome         string `json:"nome"`
+	CargaHoraria string `json:"cargaHoraria"`
+	Tipo         string `json:"tipo"`  // Obrigatória, Optativa, Complementar
+	Nivel        string `json:"nivel"` // Ex: "1", "2", "optativas", "complementares"
+}
+
+type EstruturaCurricular struct {
+	Codigo                  string                 `json:"codigo"`
+	MatrizCurricular        string                 `json:"matrizCurricular"`
+	PeriodoVigor            string                 `json:"periodoVigor"`
+	CargaHorariaTotalMin    string                 `json:"cargaHorariaTotalMin"`
+	CargaHorariaOptativaMin string                 `json:"cargaHorariaOptativaMin"`
+	CargaHorariaObrigatoria string                 `json:"cargaHorariaObrigatoria"`
+	PrazoMinimoSemestres    string                 `json:"prazoMinimoSemestres"`
+	PrazoMedioSemestres     string                 `json:"prazoMedioSemestres"`
+	PrazoMaximoSemestres    string                 `json:"prazoMaximoSemestres"`
+	Componentes             []ComponenteCurricular `json:"componentes"`
+}

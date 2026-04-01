@@ -31,9 +31,9 @@ import (
 // @name Authorization
 // @description Use "Bearer {jsessionid}"
 func main() {
-	if err := InitDB(); err != nil {
+	/*if err := InitDB(); err != nil {
 		log.Fatalf("Falha crítica ao iniciar o banco: %v", err)
-	}
+	}*/
 	defer DB.Close()
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -66,6 +66,7 @@ func main() {
 		//api.POST("/download", handlePostDownloadArquivo)
 		api.POST("/turma/arquivo/preparar", handlePostPrepararArquivo)
 		api.GET("/turmas-stream", handleGetTurmasStream)
+		api.GET("/curriculo", handleGetCurriculo)
 	}
 
 	router.POST("/login", handleLogin)
@@ -685,4 +686,18 @@ func handleGetDownload(c *gin.Context) {
 	} else {
 		c.String(http.StatusNotFound, "Link expirado ou inválido")
 	}
+}
+
+func handleGetCurriculo(c *gin.Context) {
+	jsessionid := c.GetString("jsessionid")
+	paginaCurriculo, newJsessionid, viewState, err := getPaginaCurriculo(jsessionid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar currículo: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"paginaCurriculo": paginaCurriculo,
+		"jsessionid":      newJsessionid,
+		"viewState":       viewState,
+	})
 }
