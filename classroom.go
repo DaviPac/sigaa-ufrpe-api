@@ -132,7 +132,10 @@ func getGoogleOAuthConfig() *oauth2.Config {
 		RedirectURL: "https://sigaa-ufrpe-api-production.up.railway.app/classroom/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/classroom.courses.readonly",
-			"https://www.googleapis.com/auth/classroom.coursework.me.readonly",
+			"https://www.googleapis.com/auth/classroom.course-work.readonly",
+			"https://www.googleapis.com/auth/classroom.student-submissions.me.readonly",
+			"https://www.googleapis.com/auth/classroom.announcements.readonly",
+			"https://www.googleapis.com/auth/classroom.topics.readonly",
 		},
 		Endpoint: google.Endpoint,
 	}
