@@ -28,9 +28,10 @@ type CourseResponse struct {
 
 // AssignmentResponse representa uma atividade/tarefa
 type AssignmentResponse struct {
-	Title       string `json:"title"`
-	Description string `json:"description,omitempty"`
-	DueDate     string `json:"due_date,omitempty"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	DueDate       string `json:"due_date,omitempty"`
+	AlternateLink string `json:"alternate_link,omitempty"`
 }
 
 type AnnouncementResponse struct {
@@ -274,9 +275,10 @@ func HandleListAssignments(c *gin.Context) {
 		}
 
 		assignments = append(assignments, AssignmentResponse{
-			Title:       cw.Title,
-			Description: cw.Description,
-			DueDate:     dueDate,
+			Title:         cw.Title,
+			Description:   cw.Description,
+			DueDate:       dueDate,
+			AlternateLink: cw.AlternateLink,
 		})
 	}
 
