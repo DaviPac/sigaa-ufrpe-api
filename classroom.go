@@ -114,7 +114,7 @@ func HandleGoogleCallback(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, "https://sigaa-ufrpe.vercel.app/turma?google_sync=success")
+	c.Redirect(http.StatusFound, "https://sigaa-lite-ufrpe.vercel.app/turma?google_sync=success")
 }
 
 func getClient(ctx context.Context, matricula string) (*classroom.Service, error) {
