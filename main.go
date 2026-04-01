@@ -81,6 +81,8 @@ func main() {
 		// 3. Busca turmas e atividades (Esperam JSON com {"matricula": "..."})
 		classroomAPI.POST("/courses", HandleListCourses)
 		classroomAPI.POST("/assignments", HandleListAssignments)
+		classroomAPI.POST("/announcements", HandleListAnnouncements)
+		classroomAPI.POST("/topics", HandleListTopics)
 	}
 
 	log.Println("🚀 Servidor rodando em http://localhost:8080")

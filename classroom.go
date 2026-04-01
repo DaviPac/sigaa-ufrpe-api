@@ -33,6 +33,19 @@ type AssignmentResponse struct {
 	DueDate     string `json:"due_date,omitempty"`
 }
 
+type AnnouncementResponse struct {
+	ID            string `json:"id"`
+	Text          string `json:"text"`
+	CreationTime  string `json:"creationTime"`
+	AlternateLink string `json:"alternateLink,omitempty"`
+}
+
+// TopicResponse representa a interface ClassroomTopic do frontend
+type TopicResponse struct {
+	TopicID string `json:"topicId"`
+	Name    string `json:"name"`
+}
+
 // ListCoursesHandler retorna a lista de turmas que o aluno está inscrito
 func ListCoursesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -127,9 +140,7 @@ func getGoogleOAuthConfig() *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		// A URL abaixo deve ser a mesma configurada no Google Cloud Console
-		// Em produção, mude para https://sua-api.railway.app/classroom/callback
-		RedirectURL: "https://sigaa-ufrpe-api-production.up.railway.app/classroom/callback",
+		RedirectURL:  "https://sigaa-ufrpe-api-production.up.railway.app/classroom/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/classroom.courses.readonly",
 			"https://www.googleapis.com/auth/classroom.course-work.readonly",
@@ -270,4 +281,80 @@ func HandleListAssignments(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, assignments)
+}
+
+// HandleListTopics busca os tópicos de uma turma
+func HandleListTopics(c *gin.Context) {
+	var req struct {
+		Matricula string `json:"matricula"`
+		CourseID  string `json:"course_id"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+		return
+	}
+
+	srv, err := getClient(c.Request.Context(), req.Matricula)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
+		return
+	}
+
+	// Faz a requisição para listar os tópicos do curso
+	rSrv, err := srv.Courses.Topics.List(req.CourseID).Do()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar tópicos na API do Google"})
+		return
+	}
+
+	// Inicializa como slice vazio para evitar retornar 'null' no JSON
+	topics := []TopicResponse{}
+
+	for _, t := range rSrv.Topic {
+		topics = append(topics, TopicResponse{
+			TopicID: t.TopicId,
+			Name:    t.Name,
+		})
+	}
+
+	c.JSON(http.StatusOK, topics)
+}
+
+// HandleListAnnouncements busca os anúncios do mural de uma turma
+func HandleListAnnouncements(c *gin.Context) {
+	var req struct {
+		Matricula string `json:"matricula"`
+		CourseID  string `json:"course_id"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+		return
+	}
+
+	srv, err := getClient(c.Request.Context(), req.Matricula)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
+		return
+	}
+
+	// Faz a requisição para listar os anúncios do curso
+	rSrv, err := srv.Courses.Announcements.List(req.CourseID).Do()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar anúncios na API do Google"})
+		return
+	}
+
+	// Inicializa como slice vazio para evitar retornar 'null' no JSON
+	announcements := []AnnouncementResponse{}
+
+	for _, a := range rSrv.Announcements {
+		announcements = append(announcements, AnnouncementResponse{
+			ID:            a.Id,
+			Text:          a.Text,
+			CreationTime:  a.CreationTime,
+			AlternateLink: a.AlternateLink,
+		})
+	}
+
+	c.JSON(http.StatusOK, announcements)
 }
