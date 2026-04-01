@@ -690,14 +690,14 @@ func handleGetDownload(c *gin.Context) {
 
 func handleGetCurriculo(c *gin.Context) {
 	jsessionid := c.GetString("jsessionid")
-	paginaCurriculo, newJsessionid, viewState, err := getPaginaCurriculo(jsessionid)
+	estruturaCurricular, newJsessionid, viewState, err := getPaginaCurriculo(jsessionid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar currículo: " + err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"paginaCurriculo": paginaCurriculo,
-		"jsessionid":      newJsessionid,
-		"viewState":       viewState,
+		"estruturaCurricular": estruturaCurricular,
+		"jsessionid":          newJsessionid,
+		"viewState":           viewState,
 	})
 }
