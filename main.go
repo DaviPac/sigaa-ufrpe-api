@@ -83,6 +83,8 @@ func main() {
 		classroomAPI.POST("/assignments", HandleListAssignments)
 		classroomAPI.POST("/announcements", HandleListAnnouncements)
 		classroomAPI.POST("/topics", HandleListTopics)
+		classroomAPI.POST("/materials", HandleListMaterials)
+		classroomAPI.POST("/submissions", HandleListSubmissions)
 	}
 
 	log.Println("🚀 Servidor rodando em http://localhost:8080")

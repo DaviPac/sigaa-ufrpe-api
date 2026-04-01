@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -47,94 +46,20 @@ type TopicResponse struct {
 	Name    string `json:"name"`
 }
 
-// ListCoursesHandler retorna a lista de turmas que o aluno está inscrito
-func ListCoursesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Método não permitido. Use POST.", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var req RequestBody
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Erro ao ler o body", http.StatusBadRequest)
-		return
-	}
-
-	srv, err := getClient(r.Context(), req.Matricula)
-	if err != nil {
-		http.Error(w, "Não autorizado ou aluno não autenticado no Google", http.StatusUnauthorized)
-		return
-	}
-
-	// Puxa os cursos do aluno (status ACTIVE)
-	// studentId = "me" pega os dados do dono do token
-	rSrv, err := srv.Courses.List().StudentId("me").CourseStates("ACTIVE").Do()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Erro ao buscar cursos: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	var courses []CourseResponse
-	for _, c := range rSrv.Courses {
-		courses = append(courses, CourseResponse{
-			ID:   c.Id,
-			Name: c.Name,
-			Room: c.Room,
-		})
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(courses)
+type MaterialResponse struct {
+	ID            string `json:"id"`
+	Title         string `json:"title"`
+	Description   string `json:"description,omitempty"`
+	AlternateLink string `json:"alternateLink,omitempty"`
+	CreationTime  string `json:"creationTime,omitempty"`
 }
 
-// ListAssignmentsHandler retorna as atividades de uma turma específica
-func ListAssignmentsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Método não permitido. Use POST.", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Precisamos da matrícula e também do ID do curso
-	type AssignmentReq struct {
-		Matricula string `json:"matricula"`
-		CourseID  string `json:"course_id"`
-	}
-
-	var req AssignmentReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Erro ao ler o body", http.StatusBadRequest)
-		return
-	}
-
-	srv, err := getClient(r.Context(), req.Matricula)
-	if err != nil {
-		http.Error(w, "Não autorizado", http.StatusUnauthorized)
-		return
-	}
-
-	// Puxa as atividades (courseWork) daquele curso específico
-	rSrv, err := srv.Courses.CourseWork.List(req.CourseID).Do()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Erro ao buscar atividades: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	var assignments []AssignmentResponse
-	for _, cw := range rSrv.CourseWork {
-		dueDate := ""
-		if cw.DueDate != nil {
-			dueDate = fmt.Sprintf("%02d/%02d/%d", cw.DueDate.Day, cw.DueDate.Month, cw.DueDate.Year)
-		}
-
-		assignments = append(assignments, AssignmentResponse{
-			Title:       cw.Title,
-			Description: cw.Description,
-			DueDate:     dueDate,
-		})
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(assignments)
+// SubmissionResponse representa o status da atividade de um aluno (ex: entregue, pendente)
+type SubmissionResponse struct {
+	ID           string  `json:"id"`
+	CourseWorkID string  `json:"courseWorkId"`
+	State        string  `json:"state"` // Valores comuns: "NEW", "CREATED", "TURNED_IN", "RETURNED", "RECLAIMED_BY_STUDENT"
+	Grade        float64 `json:"grade,omitempty"`
 }
 
 func getGoogleOAuthConfig() *oauth2.Config {
@@ -147,6 +72,7 @@ func getGoogleOAuthConfig() *oauth2.Config {
 			"https://www.googleapis.com/auth/classroom.course-work.readonly",
 			"https://www.googleapis.com/auth/classroom.student-submissions.me.readonly",
 			"https://www.googleapis.com/auth/classroom.announcements.readonly",
+			"https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly",
 			"https://www.googleapis.com/auth/classroom.topics.readonly",
 		},
 		Endpoint: google.Endpoint,
@@ -161,14 +87,13 @@ func HandleGoogleAuthURL(c *gin.Context) {
 	}
 
 	config := getGoogleOAuthConfig()
-	// Passamos a matrícula no "state" para sabermos de quem é o token quando o Google retornar
 	url := config.AuthCodeURL(matricula, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 
 	c.JSON(http.StatusOK, gin.H{"auth_url": url})
 }
 
 func HandleGoogleCallback(c *gin.Context) {
-	state := c.Query("state") // Esta é a matrícula que passamos antes
+	state := c.Query("state")
 	code := c.Query("code")
 
 	if state == "" || code == "" {
@@ -183,15 +108,13 @@ func HandleGoogleCallback(c *gin.Context) {
 		return
 	}
 
-	// Salva no banco de dados (usando a função do db.go que criamos)
 	err = SaveToken(state, token)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar token no banco"})
 		return
 	}
 
-	// Redireciona o aluno de volta para o frontend (ajuste a URL para o seu Vercel/Angular/React)
-	c.Redirect(http.StatusFound, "http://localhost:4200/dashboard?google_sync=success")
+	c.Redirect(http.StatusFound, "https://sigaa-ufrpe.vercel.app/turma?google_sync=success")
 }
 
 func getClient(ctx context.Context, matricula string) (*classroom.Service, error) {
@@ -359,4 +282,84 @@ func HandleListAnnouncements(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, announcements)
+}
+
+// HandleListMaterials busca os materiais de estudo de uma turma
+func HandleListMaterials(c *gin.Context) {
+	var req struct {
+		Matricula string `json:"matricula"`
+		CourseID  string `json:"course_id"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+		return
+	}
+
+	srv, err := getClient(c.Request.Context(), req.Matricula)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
+		return
+	}
+
+	// Faz a requisição para listar os materiais do curso
+	rSrv, err := srv.Courses.CourseWorkMaterials.List(req.CourseID).Do()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar materiais na API do Google"})
+		return
+	}
+
+	// Inicializa como slice vazio
+	materials := []MaterialResponse{}
+
+	for _, m := range rSrv.CourseWorkMaterial {
+		materials = append(materials, MaterialResponse{
+			ID:            m.Id,
+			Title:         m.Title,
+			Description:   m.Description,
+			AlternateLink: m.AlternateLink,
+			CreationTime:  m.CreationTime,
+		})
+	}
+
+	c.JSON(http.StatusOK, materials)
+}
+
+// HandleListSubmissions busca as submissões do próprio aluno nas atividades de uma turma
+func HandleListSubmissions(c *gin.Context) {
+	var req struct {
+		Matricula string `json:"matricula"`
+		CourseID  string `json:"course_id"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+		return
+	}
+
+	srv, err := getClient(c.Request.Context(), req.Matricula)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
+		return
+	}
+
+	// O ID de atividade "-" diz à API para trazer de TODAS as atividades da turma.
+	// O UserId("me") garante que estamos apenas vendo a situação do usuário autenticado.
+	rSrv, err := srv.Courses.CourseWork.StudentSubmissions.List(req.CourseID, "-").UserId("me").Do()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar submissões na API do Google"})
+		return
+	}
+
+	// Inicializa como slice vazio
+	submissions := []SubmissionResponse{}
+
+	for _, s := range rSrv.StudentSubmissions {
+		submissions = append(submissions, SubmissionResponse{
+			ID:           s.Id,
+			CourseWorkID: s.CourseWorkId,
+			State:        s.State,
+			Grade:        s.AssignedGrade,
+		})
+	}
+
+	c.JSON(http.StatusOK, submissions)
 }
