@@ -554,12 +554,12 @@ func parseCH(doc *goquery.Document) CargasHorarias {
 	return ch
 }
 
-func GetMainData(jsessionid string) (string, CargasHorarias, IndicesAcademicos, []Avaliacao, []TurmaData, string, string, error) {
+func GetMainData(jsessionid string) (string, string, CargasHorarias, IndicesAcademicos, []Avaliacao, []TurmaData, string, string, error) {
 	doc, newJsessionid, viewState, err := getPaginaPortal(jsessionid)
 	var indices IndicesAcademicos
 	var ch CargasHorarias
 	if err != nil {
-		return "", ch, indices, nil, nil, jsessionid, "", err
+		return "", "", ch, indices, nil, nil, jsessionid, "", err
 	}
 
 	nomeEncontrado := strings.TrimSpace(doc.Find("p.usuario span").Text())
@@ -567,19 +567,35 @@ func GetMainData(jsessionid string) (string, CargasHorarias, IndicesAcademicos, 
 		nomeEncontrado = strings.TrimSpace(doc.Find(".usuario > span").Text())
 	}
 	if nomeEncontrado == "" {
-		return "", ch, indices, nil, nil, newJsessionid, viewState, fmt.Errorf("não foi possível encontrar o nome do aluno")
+		return "", "", ch, indices, nil, nil, newJsessionid, viewState, fmt.Errorf("não foi possível encontrar o nome do aluno")
+	}
+
+	var matricula string
+
+	doc.Find("#perfil-docente > #agenda-docente td").Each(func(i int, td *goquery.Selection) {
+		texto := strings.TrimSpace(td.Text())
+
+		if strings.Contains(texto, "Matrícula:") {
+			next := td.Next()
+			if next != nil {
+				matricula = strings.TrimSpace(next.Text())
+			}
+		}
+	})
+	if matricula == "" {
+		return "", matricula, ch, indices, nil, nil, newJsessionid, viewState, fmt.Errorf("não foi possível encontrar a matrícula do aluno")
 	}
 
 	turmasData, avaliacoes, err := parseTurmas(doc)
 	if err != nil {
-		return "", ch, indices, nil, nil, newJsessionid, viewState, fmt.Errorf("erro ao parsear turmas: %w", err)
+		return "", matricula, ch, indices, nil, nil, newJsessionid, viewState, fmt.Errorf("erro ao parsear turmas: %w", err)
 	}
 
 	indices = parseIndices(doc)
 
 	ch = parseCH(doc)
 
-	return nomeEncontrado, ch, indices, avaliacoes, turmasData, newJsessionid, viewState, nil
+	return nomeEncontrado, matricula, ch, indices, avaliacoes, turmasData, newJsessionid, viewState, nil
 }
 
 func parseNoticia(doc *goquery.Document) (Noticia, error) {

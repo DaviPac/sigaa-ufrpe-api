@@ -126,7 +126,7 @@ func repeatLoginReq(username string, password string, count int) (string, error)
 func handleGetMainData(c *gin.Context) {
 	jsessionid := c.GetString("jsessionid")
 
-	nome, ch, indices, avaliacoes, turmas, newJsessionid, viewState, err := GetMainData(jsessionid)
+	nome, matricula, ch, indices, avaliacoes, turmas, newJsessionid, viewState, err := GetMainData(jsessionid)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Sessão expirada ou inválida"})
 		return
@@ -134,6 +134,7 @@ func handleGetMainData(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"nome":         nome,
+		"matricula":    matricula,
 		"turmas":       turmas,
 		"avaliacoes":   avaliacoes,
 		"indices":      indices,
@@ -233,7 +234,7 @@ func handleGetTurmasStream(c *gin.Context) {
 	c.Writer.Header().Set("Transfer-Encoding", "chunked")
 
 	// 2. Busca inicial: Coleta as turmas básicas e o viewState inicial
-	_, _, _, _, turmasBasicas, currentJsessionid, currentViewState, err := GetMainData(jsessionid)
+	_, _, _, _, _, turmasBasicas, currentJsessionid, currentViewState, err := GetMainData(jsessionid)
 	if err != nil {
 		c.SSEvent("error", gin.H{"error": "Erro ao carregar dados iniciais: " + err.Error()})
 		c.Writer.Flush()
