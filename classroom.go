@@ -156,7 +156,7 @@ func HandleListCourses(c *gin.Context) {
 		return
 	}
 
-	var courses []CourseResponse
+	courses := []CourseResponse{}
 	for _, crs := range rSrv.Courses {
 		courses = append(courses, CourseResponse{
 			ID:   crs.Id,
@@ -190,7 +190,7 @@ func HandleListAssignments(c *gin.Context) {
 		return
 	}
 
-	var assignments []AssignmentResponse
+	assignments := []AssignmentResponse{}
 	for _, cw := range rSrv.CourseWork {
 		dueDate := ""
 		if cw.DueDate != nil {
