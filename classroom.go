@@ -31,7 +31,7 @@ type AssignmentResponse struct {
 	Title         string `json:"title"`
 	Description   string `json:"description,omitempty"`
 	DueDate       string `json:"due_date,omitempty"`
-	AlternateLink string `json:"alternate_link,omitempty"`
+	AlternateLink string `json:"alternateLink,omitempty"`
 }
 
 type AnnouncementResponse struct {
