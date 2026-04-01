@@ -129,7 +129,7 @@ func getGoogleOAuthConfig() *oauth2.Config {
 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		// A URL abaixo deve ser a mesma configurada no Google Cloud Console
 		// Em produção, mude para https://sua-api.railway.app/classroom/callback
-		RedirectURL: "http://localhost:8080/classroom/callback",
+		RedirectURL: "https://sigaa-ufrpe-api-production.up.railway.app/classroom/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/classroom.courses.readonly",
 			"https://www.googleapis.com/auth/classroom.coursework.me.readonly",
