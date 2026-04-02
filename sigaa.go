@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/ledongthuc/pdf"
 )
 
 const (
@@ -1129,4 +1131,67 @@ func GetTurmaData(turma TurmaData, jsessionid string, viewState string) (TurmaDa
 	}
 
 	return turma, jsessionid3, viewState3, nil
+}
+
+func lerTextoPDF(viewState string, jsessionid string) (string, error) {
+	resp, err := FetchHistoricoPDF(viewState, jsessionid)
+	if err != nil {
+		return "", fmt.Errorf("erro ao buscar o PDF: %w", err)
+	}
+	defer resp.Body.Close()
+
+	pdfBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("erro ao ler o corpo da resposta: %w", err)
+	}
+
+	leitorDeBytes := bytes.NewReader(pdfBytes)
+	pdfReader, err := pdf.NewReader(leitorDeBytes, leitorDeBytes.Size())
+	if err != nil {
+		return "", fmt.Errorf("erro ao inicializar o leitor de PDF: %w", err)
+	}
+
+	var buf bytes.Buffer
+	b, err := pdfReader.GetPlainText()
+	if err != nil {
+		return "", fmt.Errorf("erro ao extrair texto do PDF: %w", err)
+	}
+
+	buf.ReadFrom(b)
+	return buf.String(), nil
+}
+
+// extrairCadeirasAprovadas analisa o texto bruto e filtra as aprovações
+func extrairCadeirasAprovadas(texto string) []string {
+	var cadeiras []string
+	linhas := strings.Split(texto, "\n")
+
+	// Regex para capturar o nome da disciplina.
+	// No histórico da UFRPE, o nome da disciplina está todo em MAIÚSCULO.
+	// Essa regex busca sequências de letras maiúsculas, espaços e caracteres acentuados
+	// com pelo menos 10 caracteres de comprimento para evitar pegar siglas pequenas.
+	reNomeCadeira := regexp.MustCompile(`([A-ZÇÃÁÉÍÓÚÊÔ ]{10,})`)
+
+	for _, linha := range linhas {
+		// Limpa espaços extras no começo e fim da linha
+		linhaLimpa := strings.TrimSpace(linha)
+
+		// Verifica se a linha contém a situação de aprovação (APR ou APRN)
+		// Adicionamos espaços ao redor para garantir que não pegue partes de outras palavras
+		if strings.Contains(linhaLimpa, " APR ") || strings.Contains(linhaLimpa, " APR\r") ||
+			strings.Contains(linhaLimpa, " APRN ") || strings.Contains(linhaLimpa, " APRN\r") ||
+			strings.HasSuffix(linhaLimpa, " APR") || strings.HasSuffix(linhaLimpa, " APRN") {
+
+			// Extrai o nome da disciplina usando a Regex
+			match := reNomeCadeira.FindString(linhaLimpa)
+
+			if match != "" {
+				// Limpa espaços duplos que possam ter vindo na extração
+				nomeLimpo := strings.Join(strings.Fields(match), " ")
+				cadeiras = append(cadeiras, nomeLimpo)
+			}
+		}
+	}
+
+	return cadeiras
 }
