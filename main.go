@@ -67,7 +67,6 @@ func main() {
 		api.POST("/turma/arquivo/preparar", handlePostPrepararArquivo)
 		api.GET("/turmas-stream", handleGetTurmasStream)
 		api.GET("/curriculo", handleGetCurriculo)
-		api.POST("/aprovadas", handlePostAprovadas)
 	}
 
 	router.POST("/login", handleLogin)
@@ -701,31 +700,5 @@ func handleGetCurriculo(c *gin.Context) {
 		"estruturaCurricular": estruturaCurricular,
 		"jsessionid":          newJsessionid,
 		"viewState":           viewState,
-	})
-}
-
-type AprovadasRequest struct {
-	ViewState string `json:"viewState" binding:"required"`
-}
-
-func handlePostAprovadas(c *gin.Context) {
-	var req AprovadasRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
-		return
-	}
-	jsessionid := c.GetString("jsessionid")
-	if jsessionid == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de autenticação ausente"})
-		return
-	}
-	textoPdf, err := lerTextoPDF(req.ViewState, jsessionid)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao ler texto do PDF: " + err.Error()})
-		return
-	}
-	aprovadas := extrairCadeirasAprovadas(textoPdf)
-	c.JSON(http.StatusOK, gin.H{
-		"aprovadas": aprovadas,
 	})
 }
