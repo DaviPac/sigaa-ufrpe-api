@@ -689,18 +689,17 @@ func parseCurriculoData(doc *goquery.Document) (EstruturaCurricular, error) {
 	return curriculo, nil
 }
 
-func getPaginaCurriculo(jsessionid string) (EstruturaCurricular, string, string, error) {
-	var curriculo EstruturaCurricular
+func getPaginaCurriculo(jsessionid string) (*goquery.Document, string, string, error) {
 	doc, newJsessionid, viewState, err := getPaginaPortal(jsessionid)
 	if err != nil {
 		fmt.Printf("Erro ao acessar página do portal: %v\n", err)
-		return curriculo, "", "", err
+		return nil, newJsessionid, viewState, err
 	}
 	re := regexp.MustCompile(`portal\.jsf\?id=(\d+)`)
 	match := re.FindStringSubmatch(doc.Text())
 
 	if len(match) < 2 {
-		return curriculo, "", "", fmt.Errorf("id do curso não encontrado no HTML")
+		return nil, newJsessionid, viewState, fmt.Errorf("id do curso não encontrado no HTML")
 	}
 
 	cursoID := match[1]
@@ -708,12 +707,12 @@ func getPaginaCurriculo(jsessionid string) (EstruturaCurricular, string, string,
 	doc, newJsessionid, err = doSigaaRequest("GET", cursoURL, newJsessionid, URL_PORTAL_DISCENTE, nil, "")
 	if err != nil {
 		fmt.Printf("Erro ao acessar página do currículo: %v\n", err)
-		return curriculo, "", "", err
+		return nil, newJsessionid, viewState, err
 	}
 	viewState, err = parseViewState(doc, "curriculo")
 	if err != nil {
 		fmt.Printf("Erro ao parsear ViewState do currículo: %v\n", err)
-		return curriculo, "", "", err
+		return nil, newJsessionid, viewState, err
 	}
 	payload := url.Values{}
 	payload.Set("formCurriculosCurso", "formCurriculosCurso")
@@ -722,7 +721,7 @@ func getPaginaCurriculo(jsessionid string) (EstruturaCurricular, string, string,
 	err = extractDynamicParams(doc, &payload)
 	if err != nil {
 		fmt.Printf("Erro ao extrair parametros dinâmicos: %v\n", err)
-		return curriculo, "", "", err
+		return nil, newJsessionid, viewState, err
 	}
 	doc, newJsessionid, err = doSigaaRequest(
 		"POST",
@@ -734,7 +733,17 @@ func getPaginaCurriculo(jsessionid string) (EstruturaCurricular, string, string,
 	)
 	if err != nil {
 		fmt.Printf("Erro ao acessar página do currículo com POST: %v\n", err)
-		return curriculo, "", "", err
+		return nil, newJsessionid, viewState, err
+	}
+	return doc, newJsessionid, viewState, nil
+}
+
+func getCurriculo(jsessionid string) (EstruturaCurricular, string, string, error) {
+	var curriculo EstruturaCurricular
+	doc, newJsessionid, viewState, err := getPaginaCurriculo(jsessionid)
+	if err != nil {
+		fmt.Printf("Erro ao obter página do currículo: %v\n", err)
+		return curriculo, newJsessionid, viewState, err
 	}
 	curriculo, err = parseCurriculoData(doc)
 	if err != nil {
