@@ -228,7 +228,7 @@ func handlePostNotas(c *gin.Context) {
 	jsessionid := c.GetString("jsessionid")
 
 	// Chama sua função real
-	notas, newJsessionid, newViewState, err := GetNotas(jsessionid, req.ViewState)
+	notas, anteriores, newJsessionid, newViewState, err := GetNotas(jsessionid, req.ViewState)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Sessão expirada ou inválida"})
 		return
@@ -239,6 +239,7 @@ func handlePostNotas(c *gin.Context) {
 		"jsessionid": newJsessionid,
 		"viewState":  newViewState,
 		"notas":      notas,
+		"anteriores": anteriores,
 	})
 }
 

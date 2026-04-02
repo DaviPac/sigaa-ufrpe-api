@@ -1060,55 +1060,58 @@ func getPaginaNotas(jsessionid string, viewState string) (*goquery.Document, str
 	return doc, newJsessionid, nil
 }
 
-func GetNotas(jsessionid string, viewState string) ([]DisciplinaNotas, string, string, error) {
+func GetNotas(jsessionid string, viewState string) ([]DisciplinaNotas, []DisciplinaNotas, string, string, error) {
 	doc, newJsessionid, err := getPaginaNotas(jsessionid, viewState)
 	if err != nil {
-		return nil, jsessionid, viewState, err
+		return nil, nil, jsessionid, viewState, err
 	}
 
 	disciplinas := []DisciplinaNotas{}
+	anteriores := []DisciplinaNotas{}
 	headerNames := []string{}
-
-	table := doc.Find("table.tabelaRelatorio").First()
-	table.Find("thead tr th").Each(func(i int, s *goquery.Selection) {
-		headerNames = append(headerNames, strings.TrimSpace(s.Text()))
-	})
-	table.Find("tbody tr.linha").Each(func(i int, row *goquery.Selection) {
-		disciplina := DisciplinaNotas{
-			Notas: make(map[string]string),
-		}
-
-		row.Find("td").Each(func(j int, cell *goquery.Selection) {
-			if j >= len(headerNames) {
-				return
+	doc.Find("table.tabelaRelatorio").Each(func(i int, s *goquery.Selection) {
+		s.Find("thead tr th").Each(func(j int, s *goquery.Selection) {
+			headerNames = append(headerNames, strings.TrimSpace(s.Text()))
+		})
+		s.Find("tbody tr.linha").Each(func(j int, row *goquery.Selection) {
+			disciplina := DisciplinaNotas{
+				Notas: make(map[string]string),
 			}
+			row.Find("td").Each(func(k int, cell *goquery.Selection) {
+				if k >= len(headerNames) {
+					return
+				}
+				headerName := headerNames[k]
+				cellValue := strings.TrimSpace(cell.Text())
+				switch headerName {
+				case "Código":
+					disciplina.Codigo = cellValue
+				case "Disciplina":
+					disciplina.Nome = cellValue
+				case "Resultado":
+					disciplina.Resultado = cellValue
+				case "Faltas":
+					disciplina.Faltas = cellValue
+				case "Situação":
+					disciplina.Situacao = cellValue
+				default:
+					if cellValue != "" && cellValue != "--" {
+						disciplina.Notas[headerName] = cellValue
+					}
+				}
+			})
 
-			headerName := headerNames[j]
-			cellValue := strings.TrimSpace(cell.Text())
-			switch headerName {
-			case "Código":
-				disciplina.Codigo = cellValue
-			case "Disciplina":
-				disciplina.Nome = cellValue
-			case "Resultado":
-				disciplina.Resultado = cellValue
-			case "Faltas":
-				disciplina.Faltas = cellValue
-			case "Situação":
-				disciplina.Situacao = cellValue
-			default:
-				if cellValue != "" && cellValue != "--" {
-					disciplina.Notas[headerName] = cellValue
+			if disciplina.Nome != "" {
+				if i == 0 {
+					disciplinas = append(disciplinas, disciplina)
+				} else {
+					anteriores = append(anteriores, disciplina)
 				}
 			}
 		})
-
-		if disciplina.Nome != "" {
-			disciplinas = append(disciplinas, disciplina)
-		}
 	})
 
-	return disciplinas, newJsessionid, viewState, nil
+	return disciplinas, anteriores, newJsessionid, viewState, nil
 }
 
 func GetTurmaData(turma TurmaData, jsessionid string, viewState string) (TurmaData, string, string, error) {
