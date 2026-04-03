@@ -132,13 +132,13 @@ type EstruturaCurricular struct {
 }
 
 type DetalhesComponente struct {
-	Codigo            string
-	Nome              string
-	Tipo              string
-	Modalidade        string
-	Unidade           string
-	Ementa            string
-	CargaHorariaTotal string
-	PreRequisitos     []string
-	Equivalencias     []string
+	Codigo            string   `json:"codigo"`
+	Nome              string   `json:"nome"`
+	Tipo              string   `json:"tipo"`       // Ex: MÓDULO
+	Modalidade        string   `json:"modalidade"` // Ex: PRESENCIAL
+	Unidade           string   `json:"unidade"`    // Ex: DEPARTAMENTO DE COMPUTAÇÃO-DC - RECIFE - 11.01.60
+	Ementa            string   `json:"ementa"`
+	CargaHorariaTotal string   `json:"cargaHorariaTotal"` // Ex: 60h
+	PreRequisitos     []string `json:"preRequisitos"`
+	Equivalencias     []string `json:"equivalencias"`
 }
