@@ -67,6 +67,7 @@ func main() {
 		api.POST("/turma/arquivo/preparar", handlePostPrepararArquivo)
 		api.GET("/turmas-stream", handleGetTurmasStream)
 		api.GET("/curriculo", handleGetCurriculo)
+		api.POST("/componente", handlePostComponente)
 	}
 
 	router.POST("/login", handleLogin)
@@ -646,5 +647,30 @@ func handleGetCurriculo(c *gin.Context) {
 		"estruturaCurricular": estruturaCurricular,
 		"jsessionid":          newJsessionid,
 		"viewState":           viewState,
+	})
+}
+
+type ComponenteRequest struct {
+	IdComponente string `json:"idComponente" binding:"required"`
+	Curriculo    string `json:"curriculo" binding:"required"`
+	ViewState    string `json:"viewState" binding:"required"`
+}
+
+func handlePostComponente(c *gin.Context) {
+	var req ComponenteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido: " + err.Error()})
+		return
+	}
+	jsessionid := c.GetString("jsessionid")
+	componente, newJsessionid, viewState, err := getDetalhesComponente(jsessionid, req.ViewState, req.IdComponente, req.Curriculo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar detalhes do componente: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"componente": componente,
+		"jsessionid": newJsessionid,
+		"viewState":  viewState,
 	})
 }

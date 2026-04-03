@@ -111,6 +111,7 @@ type AtestadoMatricula struct {
 
 type ComponenteCurricular struct {
 	Codigo       string `json:"codigo"`
+	ID           string `json:"id"`
 	Nome         string `json:"nome"`
 	CargaHoraria string `json:"cargaHoraria"`
 	Tipo         string `json:"tipo"`  // Obrigatória, Optativa, Complementar
@@ -128,4 +129,16 @@ type EstruturaCurricular struct {
 	PrazoMedioSemestres     string                 `json:"prazoMedioSemestres"`
 	PrazoMaximoSemestres    string                 `json:"prazoMaximoSemestres"`
 	Componentes             []ComponenteCurricular `json:"componentes"`
+}
+
+type DetalhesComponente struct {
+	Codigo            string
+	Nome              string
+	Tipo              string
+	Modalidade        string
+	Unidade           string
+	Ementa            string
+	CargaHorariaTotal string
+	PreRequisitos     []string
+	Equivalencias     []string
 }

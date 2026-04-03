@@ -20,6 +20,8 @@ const (
 	USER_AGENT             = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 	URL_ATESTADO_MATRICULA = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
 	URL_CURRICULO          = "https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf"
+	URL_COMPONENTE         = "https://sigs.ufrpe.br/sigaa/graduacao/componente/lista.jsf"
+	URL_BUSCA_COMPONENTE   = "https://sigs.ufrpe.br/sigaa/geral/componente_curricular/busca_geral.jsf"
 )
 
 var (
@@ -36,6 +38,7 @@ func doSigaaRequest(method string, url string, jsessionid string, referer string
 	}
 
 	req.Header.Set("User-Agent", USER_AGENT)
+	req.Header.Set("Origin", "https://sigs.ufrpe.br")
 	if referer != "" {
 		req.Header.Set("Referer", referer)
 	}
@@ -607,6 +610,7 @@ func cleanText(s string) string {
 
 func parseCurriculoData(doc *goquery.Document) (EstruturaCurricular, error) {
 	var curriculo EstruturaCurricular
+	reIDInterno := regexp.MustCompile(`'(?:id|idComponente)':'(\d+)'`)
 
 	// 1. Extrair Dados Gerais da Tabela Principal
 	doc.Find("table.formulario > tbody > tr").Each(func(i int, row *goquery.Selection) {
@@ -681,6 +685,20 @@ func parseCurriculoData(doc *goquery.Document) (EstruturaCurricular, error) {
 					comp.Nome = rawInfo
 				}
 
+				if tds.Length() >= 3 {
+					tds.Eq(2).Find("a").EachWithBreak(func(_ int, aTag *goquery.Selection) bool {
+						onclickAttr, hasOnclick := aTag.Attr("onclick")
+						if hasOnclick {
+							matches := reIDInterno.FindStringSubmatch(onclickAttr)
+							if len(matches) > 1 {
+								comp.ID = matches[1]
+								return false
+							}
+						}
+						return true
+					})
+				}
+
 				curriculo.Componentes = append(curriculo.Componentes, comp)
 			}
 		})
@@ -736,6 +754,211 @@ func getPaginaCurriculo(jsessionid string) (*goquery.Document, string, string, e
 		return nil, newJsessionid, viewState, err
 	}
 	return doc, newJsessionid, viewState, nil
+}
+
+func getPaginaBusca(jsessionid string, viewState string) (*goquery.Document, string, string, error) {
+	payload := url.Values{}
+	payload.Set("menu:form_menu_discente", "menu:form_menu_discente")
+	payload.Set("id", "107543")
+	payload.Set("jscook_action", "menu_form_menu_discente_discente_menu:A]#{ componenteCurricular.popularBuscaDiscente }")
+	payload.Set("javax.faces.ViewState", viewState)
+
+	doc, newJsessionid, err := doSigaaRequest(
+		"POST",
+		URL_PORTAL_DISCENTE,
+		jsessionid,
+		URL_PORTAL_DISCENTE,
+		strings.NewReader(payload.Encode()),
+		"application/x-www-form-urlencoded",
+	)
+	if err != nil {
+		return nil, newJsessionid, viewState, err
+	}
+	viewState, err = parseViewState(doc, "busca")
+	if err != nil {
+		fmt.Printf("Erro ao parsear ViewState da busca: %v\n", err)
+		return nil, newJsessionid, viewState, err
+	}
+	return doc, newJsessionid, viewState, nil
+}
+
+func getPaginaBuscaComponente(jsessionid string, viewState string) (*goquery.Document, string, string, error) {
+	_, jsessionid, viewState, err := getPaginaBusca(jsessionid, viewState)
+	if err != nil {
+		return nil, jsessionid, viewState, fmt.Errorf("erro ao acessar página de busca: %w", err)
+	}
+	payload := url.Values{}
+	payload.Set("formBusca", "formBusca")
+	payload.Set("formBusca:checkNivel", "on")
+	payload.Set("formBusca:j_id_jsp_1111842163_1012", "G")
+	payload.Set("formBusca:checkCodigo", "on")
+	payload.Set("formBusca:j_id_jsp_1111842163_1015", "16665")
+	payload.Set("formBusca:j_id_jsp_1111842163_1017", "")
+	payload.Set("formBusca:form:idPreRequisito", "")
+	payload.Set("formBusca:form:nomeDisciplinaPreRequisito", "")
+	payload.Set("formBusca:form2:idCoRequisito", "")
+	payload.Set("formBusca:form2:nomeDisciplinaCoRequisito", "")
+	payload.Set("formBusca:form3:idEquivalencia", "")
+	payload.Set("formBusca:form3:nomeDisciplinaEquivalencia", "")
+	payload.Set("formBusca:Data_Inicial", "")
+	payload.Set("formBusca:dataFim", "")
+	payload.Set("formBusca:unidades", "0")
+	payload.Set("formBusca:tipos", "0")
+	payload.Set("formBusca:modalidades", "0")
+	payload.Set("formBusca:btnBuscar", "Buscar")
+	payload.Set("javax.faces.ViewState", viewState)
+	payloadString := "formBusca=formBusca&formBusca%3AcheckNivel=on&formBusca%3Aj_id_jsp_1111842163_1012=G&formBusca%3Aj_id_jsp_1111842163_1015=&formBusca%3Aj_id_jsp_1111842163_1017=&formBusca%3Aform%3AidPreRequisito=&formBusca%3Aform%3AnomeDisciplinaPreRequisito=&formBusca%3Aform2%3AidCoRequisito=&formBusca%3Aform2%3AnomeDisciplinaCoRequisito=&formBusca%3Aform3%3AidEquivalencia=&formBusca%3Aform3%3AnomeDisciplinaEquivalencia=&formBusca%3AData_Inicial=&formBusca%3AdataFim=&formBusca%3Aunidades=0&formBusca%3Atipos=0&formBusca%3Amodalidades=0&formBusca%3AbtnBuscar=Buscar&javax.faces.ViewState="
+	encodedPayload := payloadString + url.QueryEscape(viewState)
+	doc, newJsessionid, err := doSigaaRequest(
+		"POST",
+		URL_BUSCA_COMPONENTE,
+		jsessionid,
+		URL_PORTAL_DISCENTE,
+		strings.NewReader(encodedPayload),
+		"application/x-www-form-urlencoded",
+	)
+	if err != nil {
+		return nil, newJsessionid, viewState, err
+	}
+	viewState, err = parseViewState(doc, "busca_componente")
+	if err != nil {
+		fmt.Printf("Erro ao parsear ViewState da busca_componente: %v\n", err)
+		return nil, newJsessionid, viewState, err
+	}
+	return doc, newJsessionid, viewState, nil
+}
+
+func getPaginaComponente(jsessionid string, viewState string, id string) (*goquery.Document, string, string, error) {
+
+	_, jsessionid, viewState, err := getPaginaBuscaComponente(jsessionid, viewState)
+	if err != nil {
+		return nil, jsessionid, viewState, fmt.Errorf("erro ao acessar página de busca de componente: %w", err)
+	}
+
+	payload := url.Values{}
+	payload.Set("detalharComponenteCurricular:Detalhes", "detalharComponenteCurricular:Detalhes")
+	payload.Set("id", id)
+	payload.Set("detalharComponenteCurricular", "detalharComponenteCurricular")
+	payload.Set("javax.faces.ViewState", viewState)
+
+	docComponente, finalJsessionid, err := doSigaaRequest(
+		"POST",
+		URL_COMPONENTE,
+		jsessionid,
+		URL_BUSCA_COMPONENTE,
+		strings.NewReader(payload.Encode()),
+		"application/x-www-form-urlencoded",
+	)
+
+	if err != nil {
+		return nil, finalJsessionid, viewState, err
+	}
+
+	return docComponente, finalJsessionid, viewState, nil
+}
+
+func clearText(s string) string {
+	return strings.Join(strings.Fields(s), " ")
+}
+
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
+func parseDetalhesComponente(doc *goquery.Document, curriculo string) DetalhesComponente {
+	var comp DetalhesComponente
+	comp.Equivalencias = []string{}
+	comp.PreRequisitos = []string{}
+
+	// 1. Extração de Dados Gerais
+	doc.Find("tr").Each(func(i int, s *goquery.Selection) {
+		th := clearText(s.Find("th").First().Text())
+		td := clearText(s.Find("td").First().Text())
+
+		switch {
+		case strings.Contains(th, "Tipo do Componente Curricular:"):
+			comp.Tipo = td
+		case strings.Contains(th, "Modalidade de Educação:"):
+			comp.Modalidade = td
+		case strings.Contains(th, "Unidade Responsável:"):
+			comp.Unidade = td
+		case strings.Contains(th, "Código:"):
+			comp.Codigo = td
+		case strings.Contains(th, "Nome:"):
+			comp.Nome = td
+		case strings.Contains(th, "Ementa/Descrição:"):
+			comp.Ementa = td
+		}
+
+		// Identifica a Carga Horária Total
+		td0 := clearText(s.Find("td").Eq(0).Text())
+		if strings.Contains(td0, "Total de Carga Horária do Componente") {
+			comp.CargaHorariaTotal = clearText(s.Find("td").Eq(1).Text())
+		}
+	})
+
+	// 2. Extração de Tabelas Complexas
+	doc.Find("table").Each(func(i int, table *goquery.Selection) {
+		caption := clearText(table.Find("caption").Text())
+
+		// Equivalências Específicas
+		if strings.Contains(caption, "Equivalência(s) Específica(s)") {
+			table.Find("tbody tr").Each(func(_ int, tr *goquery.Selection) {
+				curr := clearText(tr.Find("td.colCurriculo").Text())
+
+				if strings.Contains(curr, curriculo) {
+					tr.Find("td").Eq(0).Find("acronym").Each(func(_ int, acronym *goquery.Selection) {
+						codigoLimpo := strings.TrimSpace(acronym.Text())
+						// Só adiciona se não for vazio e se ainda não existir no slice
+						if codigoLimpo != "" && !contains(comp.Equivalencias, codigoLimpo) {
+							comp.Equivalencias = append(comp.Equivalencias, codigoLimpo)
+						}
+					})
+				}
+			})
+		}
+
+		// Expressões Específicas (Pré-requisitos e Co-requisitos)
+		if strings.Contains(caption, "Expressões específicas de currículo") {
+			table.Find("tbody tr").Each(func(_ int, tr *goquery.Selection) {
+				currInfo := clearText(tr.Find("td").Eq(0).Text())
+				tipo := clearText(tr.Find("td").Eq(2).Text())
+
+				if strings.Contains(currInfo, curriculo) && tipo == "Pré-Requisito" {
+					tr.Find("td").Eq(1).Find("acronym").Each(func(_ int, acronym *goquery.Selection) {
+						codigoLimpo := strings.TrimSpace(acronym.Text())
+						// Só adiciona se não for vazio e se ainda não existir no slice
+						if codigoLimpo != "" && !contains(comp.PreRequisitos, codigoLimpo) {
+							comp.PreRequisitos = append(comp.PreRequisitos, codigoLimpo)
+						}
+					})
+				}
+			})
+		}
+	})
+
+	return comp
+}
+
+func getDetalhesComponente(jsessionid string, viewState string, idComponente string, curriculo string) (DetalhesComponente, string, string, error) {
+	doc, newJsessionid, viewState, err := getPaginaComponente(jsessionid, viewState, idComponente)
+	if err != nil {
+		fmt.Printf("Erro ao obter página do componente: %v\n", err)
+		return DetalhesComponente{}, newJsessionid, viewState, err
+	}
+	comp := parseDetalhesComponente(doc, curriculo)
+
+	_, newJsessionid, viewState, err = getPaginaPortal(newJsessionid)
+	if err != nil {
+		fmt.Printf("Erro ao atualizar sessão após acessar detalhes do componente: %v\n", err)
+		return comp, newJsessionid, viewState, err
+	}
+	return comp, newJsessionid, viewState, nil
 }
 
 func getCurriculo(jsessionid string) (EstruturaCurricular, string, string, error) {

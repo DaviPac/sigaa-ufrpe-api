@@ -1,0 +1,1051 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html class="background" xmlns="http://www.w3.org/1999/xhtml"><head>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/JSCookMenu.js"><!--
+
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/MyFacesHack.js"><!--
+
+//--></script>
+<script type="text/javascript"><!--
+var myThemeOfficeBase='/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/ThemeOffice/';
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/ThemeOffice/theme.js"><!--
+
+//--></script>
+<link rel="stylesheet" href="/sigaa/css/jscookmenu/ThemeOffice/theme.css" type="text/css"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
+
+<title>SIGAA - Sistema Integrado de Gestão de Atividades Acadêmicas</title>
+<link class="component" href="/sigaa/a4j/s/3_3_3.Finalorg/richfaces/renderkit/html/css/basic_classes.xcss/DATB/eAF7sqpgb-jyGdIAFrMEaw__.jsf" rel="stylesheet" type="text/css"/><link class="component" href="/sigaa/a4j/s/3_3_3.Finalorg/richfaces/renderkit/html/css/extended_classes.xcss/DATB/eAF7sqpgb-jyGdIAFrMEaw__.jsf" media="rich-extended-skinning" rel="stylesheet" type="text/css"/><script type="text/javascript">window.RICH_FACES_EXTENDED_SKINNING_ON=true;</script><script src="/sigaa/a4j/g/3_3_3.Finalorg/richfaces/renderkit/html/scripts/skinning.js.jsf" type="text/javascript"></script><link rel="shortcut icon" href="/sigaa/img/sigaa.ico"/>
+
+<script type="text/javascript" src="/shared/jsBundles/jawr_loader.js"></script>
+<script type="text/javascript">
+                JAWR.loader.style('/bundles/css/sigaa_base.css', 'all');
+        		JAWR.loader.style('/css/ufrn_print.css', 'print');
+        		JAWR.loader.script('/bundles/js/sigaa_base.js');
+</script>
+<link rel="stylesheet" type="text/css" media="all" href="/sigaa/cssBundles/gzip_N986783676/bundles/css/sigaa.css"/>
+
+
+<link rel="alternate stylesheet" type="text/css" media="screen" title="mono" href="/sigaa/css/mono.css"/>
+<link rel="alternate stylesheet" type="text/css" media="screen" title="contraste" href="/sigaa/css/contraste.css"/>
+
+<!-- FontAwesome -->
+<link rel="stylesheet" type="text/css" href="/shared/beta/css/font-awesome.css" media="screen"/>
+
+<!-- Painel Genérico para telas Modal -->
+<script type="text/javascript" src="/shared/javascript/paineis/painel_generico.js"></script>
+
+<script src="/sigaa/javascript/styleswitch.js" type="text/javascript"></script>
+
+<script src="/sigaa/javascript/prevenir-duplo-clique.js" type="text/javascript"></script>
+
+
+	
+	
+		<!-- Botão de informar um problema -->
+		<link rel="stylesheet" type="text/css" href="/shared/informar-problema/css/informar-problema.css?ver=1.1" media="screen"/>
+		<script type="text/javascript" src="/shared/informar-problema/js/webcomponents.min.js?ver=1.1"></script>
+		<script type="text/javascript" src="/shared/informar-problema/js/html2canvas.js?ver=1.1"></script>
+		<script type="text/javascript" src="/shared/informar-problema/js/informar-problema.js?ver=1.1"></script>
+		<!-- FIM botão de informar um problema -->
+	
+	
+
+
+
+<script type="text/javascript">
+		var mensagem;
+		var initMensagem = function() {
+			mensagem = new Mensagem();
+		}
+		YAHOO.util.Event.addListener(window,'load', initMensagem);
+		
+		function isIE(){
+		
+					return false;
+			
+		}
+</script>
+
+<script type="text/javascript" src="/sigaa/javascript/jsCookMenuHack.js"></script>
+<!-- Fim dos imports para abrir chamado -->
+
+	<script src="/shared/javascript/STICookieConsent.js"></script>
+	<script>
+	    document.addEventListener("DOMContentLoaded", () => {
+	    	generateCookieConsentModal("SIGAA", "N&#243;s usamos cookies para melhorar sua experi&#234;ncia de navega&#231;&#227;o no portal. Ao utilizar o %sitename%, voc&#234; concorda com a pol&#237;&#173;tica de monitoramento de cookies da UFRPE.", "https://ufrn.br/institucional/politica-de-privacidade-e-termos-de-uso", "https://ufrn.br/institucional/politica-de-cookies");
+	    })
+	</script>
+	
+</head>
+
+<body>
+
+
+
+
+
+
+
+	<div id="container">
+	<div id="cabecalho">
+		<div id="info-sistema">
+			<h1><span>UFRPE - SIGAA -</span></h1>
+			<h3>Sistema Integrado de Gestão de Atividades Acadêmicas</h3>
+			<div class="dir">
+				
+					
+					<style>
+#info-sistema span.sair-sistema,
+	#info-sistema #tempoSessao{
+	display: inline;
+	right: inherit;
+	position: relative;
+	top: 0;
+	padding-right: inherit;
+}
+
+#info-sistema div.dir{
+	top:0;
+	right:0;
+	text-align: right;
+	width: auto;
+	position: absolute;
+	margin:0;
+	padding: 0;
+	height:16px;
+	display: inline;
+	padding-right:5px;
+	color: #FFF;
+}
+#info-sistema span.acessibilidade{
+	padding: 0 5px;
+	border: solid #D99C44;
+	border-width: 0 1px 0 0;
+	margin: 0 5px;
+	padding: 0 5px;
+}
+	#info-sistema span.acessibilidade a{
+		font-size: 1.1em;
+		font-weight: bolder;
+		color: #FFF;
+		margin-left: 2px;
+		letter-spacing: 0.1px;
+		word-spacing: 0.1px;
+	}
+	#info-sistema span.acessibilidade a.fonteMenor strong{
+		font-size: 0.9em;
+	}
+	.rich-tabpanel-content {
+		font-size: inherit;
+	}	
+</style>
+<span class="acessibilidade">
+	<a class="fonteMaior" title="Aumentar a texto" alt="Aumentar a texto" href="#">
+		<strong>A</strong>+
+	</a>
+	<a class="fonteMenor" title="Diminuir o texto" alt="Diminuir o texto" href="#">
+		<strong>A</strong>-
+	</a>
+</span>
+
+	<span class="acessibilidade">
+		<a title="Ajuda" alt="Ajuda" href="http://manuais.sigs.ufrpe.br/doku.php?id=suporte:sigaa:visao_geral" target="_blank">
+			Ajuda?
+		</a>
+	</span>
+
+<script type="text/javascript" src="/shared/javascript/jquery/jquery-1.4.4.min.js"></script>
+<script src="/sigaa/javascript/jquery.fontsize.js" type="text/javascript"></script>
+<script type="text/javascript">
+	redimensionarFonte('.acessibilidade', '#conteudo', 11, 11, 14);
+</script>
+<script>var $jq = jQuery.noConflict();</script>
+					<span id="tempoSessao"></span>
+					<span class="sair-sistema"> <a href="/sigaa/logar.do?dispatch=logOff">SAIR</a> </span>
+				
+			</div>
+		</div>
+	 
+
+	<div id="painel-usuario">
+	
+		<div id="menu-usuario">
+		<ul>
+			<li class="modulos">
+			
+				<span id="modulos"> <a href="#" id="show-modulos"> Módulos </a> </span>
+			
+			</li>
+			
+				
+				<li class="caixa-postal">
+				
+					
+									
+						<a href="/sigaa/abrirCaixaPostal.jsf?sistema=2"> 
+							
+							Caixa Postal					
+							
+							 
+						</a>
+					
+				
+				</li>
+				
+			
+			
+			
+				<li class="chamado">
+				
+					
+					
+						
+						
+							<a href="#" onclick="window.open(&#39;https://servicosdigitais.ufrpe.br&#39;, &#39;chamado&#39;, &#39;scrollbars=1,width=700,height=600&#39;)">Abrir Chamado</a>
+						
+					
+				
+				</li>
+			 
+			
+			
+			
+				 
+					<li class="menus">
+						<a href="/sigaa/verPortalDiscente.do">Menu Discente</a>
+					</li>
+				 
+			
+			
+			
+				
+
+<li class="dados-pessoais">
+	
+		<a href="#" onclick="window.open(&#39;/sigaa/alterar_dados.jsf&#39;,&#39;&#39;,&#39;width=670,height=430, top=100, left=100, scrollbars&#39; )">Alterar senha</a>
+	
+</li>
+			
+
+			
+				<!-- INICIO botão Informar problema -->
+					
+				<!-- FIM botão Informar problema -->
+			
+			
+		</ul>
+		
+		
+		
+		
+		</div>
+
+		<div id="info-usuario">
+
+		<p class="periodo-atual">
+			
+				Semestre atual: <strong>2026.1</strong>			
+			
+			<br/>
+			
+		</p>		
+		<p class="usuario">
+		
+			<span title="DAVI PIRES A. DE CARVALHO">
+				DAVI PIRES A. DE CARVALHO
+			</span>
+			
+			
+		
+		</p>
+
+		<p class="unidade">
+			UNIVERSIDADE FEDERAL RURAL DE PERNAMBUCO
+			 (11.00)
+			
+		</p>
+
+		</div>
+	
+	<div id="menu-principal"></div>
+	</div>
+	</div>
+	
+
+	<div id="conteudo">
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+<script type="text/javascript">
+//Fun&#231;&#227;o adicionada no cabe&#231;alho para evitar a reescrita em cada JSP.
+function contarCaracteres(field, idMostraQuantidadeUsuario, maxlimit) {
+	
+	if (field.value.length > maxlimit){
+		field.value = field.value.substring(0, maxlimit);
+	}else{ 
+		document.getElementById(idMostraQuantidadeUsuario).innerHTML = maxlimit - field.value.length ;
+	} 
+}
+</script>
+
+
+
+
+	
+
+
+
+
+
+
+
+<div id="menu-dropdown">
+<div class="wrapper">
+
+
+<form id="form_menu_discente" name="form_menu_discente" method="post" action="/sigaa/graduacao/componente_graduacao/view.jsf" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="form_menu_discente" value="form_menu_discente"/>
+
+
+<input type="hidden" name="id" value="107543"/>
+<input type="hidden" name="jscook_action"/>
+
+<script type="text/javascript">var form_menu_discente_discente_menu =
+[['<img src="/sigaa/img/icones/ensino_menu.gif"/>', 'Ensino', null, 'form_menu_discente', null,['<img src="/sigaa/img/celular_icone.gif"/>', 'Consultar Minhas Notas', 'form_menu_discente_discente_menu:A]#{ relatorioNotasAluno.gerarRelatorio }', 'form_menu_discente', null],
+[null, 'Consultar &#205;ndices Acad&#234;micos', 'form_menu_discente_discente_menu:A]#{ indiceAcademicoMBean.selecionaDiscente }', 'form_menu_discente', null],
+['<img src="/sigaa/img/celular_icone.gif"/>', 'Emitir Atestado de Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatricula }', 'form_menu_discente', null],
+[null, 'Emitir Atestado de Matr&#237;cula para Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatriculaPeriodoSuplementar }', 'form_menu_discente', null],
+[null, 'Emitir Hist&#243;rico', 'form_menu_discente_discente_menu:A]#{ portalDiscente.historico }', 'form_menu_discente', null],
+[null, 'Emitir Declara&#231;&#227;o de V&#237;nculo', 'form_menu_discente_discente_menu:A]#{ declaracaoVinculo.emitirDeclaracao }', 'form_menu_discente', null],
+[null, 'Impress&#227;o de Diploma Digital', 'form_menu_discente_discente_menu:A]#{ buscaDiplomaDigitalMBean.iniciarBuscaDiscente }', 'form_menu_discente', null],
+_cmSplit,['<img src="/sigaa/img/graduacao/coordenador/documento.png"/>', 'Alunos Aptos a Colar Grau', 'form_menu_discente_discente_menu:A]#{ listaAssinaturasGraduandos.listarDiscentesAptosColarGrau }', 'form_menu_discente', null],
+[null, 'Solicitar Valida&#231;&#227;o de Documentos para Registro de Diploma', 'form_menu_discente_discente_menu:A]#{documentoDiplomaDiscenteMBean.iniciarSolicitacao}', 'form_menu_discente', null],
+_cmSplit,[null, 'Solicitar Aproveitamento/Incorpora&#231;&#227;o de Estudos', 'form_menu_discente_discente_menu:A]#{solicitacaoAproveitamentoEstudosMBean.iniciarSolicitacao}', 'form_menu_discente', null],
+[null, 'Minhas Solicita&#231;&#245;es de Aproveitamento', 'form_menu_discente_discente_menu:A]#{solicitacaoAproveitamentoEstudosMBean.listar}', 'form_menu_discente', null],
+_cmSplit,[null, 'Avalia&#231;&#227;o Institucional', null, 'form_menu_discente', null,[null, 'Preencher a Avalia&#231;&#227;o Institucional', 'form_menu_discente_discente_menu:A]#{ calendarioAvaliacaoInstitucionalBean.listar }', 'form_menu_discente', null],
+_cmSplit,[null, 'Rever a Avalia&#231;&#227;o Anterior', 'form_menu_discente_discente_menu:A]#{ avaliacaoInstitucionalAnterior.listaAnterior }', 'form_menu_discente', null],
+[null, 'Consultar o Resultado da Avalia&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ relatorioAvaliacaoMBean.iniciarConsultaPublica }', 'form_menu_discente', null],
+[null, 'Observa&#231;&#245;es dos Docentes Sobre Minhas Turmas', 'form_menu_discente_discente_menu:A]#{ relatorioAvaliacaoMBean.iniciarObservacoesTurmasDiscente }', 'form_menu_discente', null]],
+_cmSplit,[null, 'Matr&#237;cula On-Line', null, 'form_menu_discente', null,[null, 'Realizar Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.telaInstrucoes}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula em Turma de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ confirmacaoMatriculaFeriasBean.iniciar}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula em Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacaoSuplementar.telaInstrucoes}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula Extraordin&#225;ria', 'form_menu_discente_discente_menu:A]#{ matriculaExtraordinaria.iniciar}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula Extraordin&#225;ria em Turma de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ matriculaExtraordinaria.iniciarFerias}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula Extraordin&#225;ria em Turma Suplementar', 'form_menu_discente_discente_menu:A]#{ matriculaExtraordinariaSuplementar.iniciar}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula com Flexibiliza&#231;&#227;o de Pr&#233;-requisito', 'form_menu_discente_discente_menu:A]#{ matriculaFlexPreReq.iniciarDiscente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Ver Comprovante de Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.verComprovanteSolicitacoes}', 'form_menu_discente', null],
+[null, 'Ver Comprovante de Matr&#237;cula para Turmas de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatriculaTurmaFerias}', 'form_menu_discente', null],
+[null, 'Ver Comprovante de Matr&#237;cula para Turmas Suplementares', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacaoSuplementar.verComprovanteSolicitacoes}', 'form_menu_discente', null],
+[null, 'Ver Orienta&#231;&#245;es de Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.acompanharSolicitacoes}', 'form_menu_discente', null],
+[null, 'Ver Resultado do Processamento', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.verComprovanteSolicitacoes}', 'form_menu_discente', null],
+_cmSplit,[null, 'Meu Plano de Matr&#237;culas', 'form_menu_discente_discente_menu:A]#{ planoMatriculaBean.gerar }', 'form_menu_discente', null]],
+[null, 'Solicita&#231;&#245;es de Turma de F&#233;rias', null, 'form_menu_discente', null,[null, 'Solicitar Turma de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ solicitacaoEnsinoIndividual.iniciarFerias }', 'form_menu_discente', null],
+[null, 'Visualizar Solicita&#231;&#245;es Enviadas', 'form_menu_discente_discente_menu:A]#{ solicitacaoEnsinoIndividual.listarFerias}', 'form_menu_discente', null],
+[null, 'Emitir Comprovante de Solicita&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{ solicitacaoEnsinoIndividual.emitirComprovanteFerias }', 'form_menu_discente', null]],
+[null, 'Trancamento de Matr&#237;cula', null, 'form_menu_discente', null,[null, 'Trancar', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.popularSolicitacao }', 'form_menu_discente', null],
+[null, 'Exibir Andamento do Trancamento', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.iniciarMeusTrancamentos }', 'form_menu_discente', null],
+_cmSplit,[null, 'Trancar Matr&#237;cula em Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.popularSolicitacaoSuplementar }', 'form_menu_discente', null],
+[null, 'Exibir Andamento do Trancamento em Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.iniciarMeusTrancamentosSuplementar }', 'form_menu_discente', null]],
+[null, 'Suspens&#227;o de Programa', null, 'form_menu_discente', null,,
+[null, 'Suspens&#227;o Regular', 'form_menu_discente_discente_menu:A]#{ trancamentoPrograma.iniciarTrancamentoRegular }', 'form_menu_discente', null],
+[null, 'Solicitar Suspens&#227;o a Posteriori', 'form_menu_discente_discente_menu:A]#{ trancamentoPrograma.iniciarTrancamentoPosteriori }', 'form_menu_discente', null],
+[null, 'Exibir Solicita&#231;&#245;es de Suspens&#227;o', 'form_menu_discente_discente_menu:A]#{ trancamentoPrograma.exibirMinhasSolicitacoes }', 'form_menu_discente', null]],
+[null, 'Confirma&#231;&#227;o de V&#237;nculo de Ingressante', 'form_menu_discente_discente_menu:A]#{ validacaoVinculo.iniciarAutoconfirmacao  }', 'form_menu_discente', null],
+[null, 'Acompanhar Procedimentos ap&#243;s Defesa de TCC', 'form_menu_discente_discente_menu:A]#{ acompanhamentoProcedimentosAposDefesaGraduacaoMBean.iniciarSelecaoComponente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Registro de Atividades Curriculares Complementares', 'form_menu_discente_discente_menu:A]#{ solicitacaoRegistroAtividadeAutonomaMBean.listar }', 'form_menu_discente', null],
+_cmSplit,[null, 'Produ&#231;&#245;es Acad&#234;micas', null, 'form_menu_discente', null,,
+['<img src="/sigaa/img/graduacao/coordenador/documento.png"/>', 'Termo de Autoriza&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ termoAutorizacaoPublicacaoMBean.iniciarEmissaoDiscente }', 'form_menu_discente', null]],
+[null, 'Consultar Turmas do Pr&#243;x. Semestre', 'form_menu_discente_discente_menu:A]#{ solicitacaoTurma.iniciarListaSolicitacoesCursoPortalDiscente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Atividades de Campo', 'form_menu_discente_discente_menu:A]#{ inscricaoAtividadeCampo.iniciarInscricao }', 'form_menu_discente', null],
+_cmSplit,[null, 'Calend&#225;rio Acad&#234;mico', 'form_menu_discente_discente_menu:A]#{calendario.iniciarBusca}', 'form_menu_discente', null],
+[null, 'Consultas Gerais', null, 'form_menu_discente', null,[null, 'Consultar Curso', 'form_menu_discente_discente_menu:A]#{ curso.popularBuscaGeral }', 'form_menu_discente', null],
+[null, 'Consultar Componente Curricular', 'form_menu_discente_discente_menu:A]#{ componenteCurricular.popularBuscaDiscente }', 'form_menu_discente', null],
+[null, 'Consultar Estrutura Curricular', 'form_menu_discente_discente_menu:A]#{ curriculo.popularBuscaGeral }', 'form_menu_discente', null],
+[null, 'Consultar Turma', 'form_menu_discente_discente_menu:A]#{ buscaTurmaBean.popularBuscaGeral }', 'form_menu_discente', null],
+[null, 'Consultar Unidades Acad&#234;micas', 'form_menu_discente_discente_menu:A]#{ unidade.popularBuscaGeral }', 'form_menu_discente', null]]],
+['<img src="/sigaa/img/icones/pesquisa_menu.gif"/>', 'Pesquisa', null, 'form_menu_discente', null,[null, 'Projeto de Pesquisa', null, 'form_menu_discente', null,[null, 'Consultar Projetos', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/projetoPesquisa/buscarProjetos.do?dispatch=consulta&popular=true&consulta=true', 'form_menu_discente', null],
+[null, 'Projetos que Participo', 'form_menu_discente_discente_menu:A]#{membroProjeto.listarMeusProjetoPesquisa}', 'form_menu_discente', null]],
+_cmSplit,[null, 'Plano de Trabalho', null, 'form_menu_discente', null,[null, 'Meus Planos de Trabalho', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/sigaa/pesquisa/planoTrabalho/wizard.do?dispatch=listarPorDiscente', 'form_menu_discente', null]],
+[null, 'Relat&#243;rios de Inicia&#231;&#227;o Cient&#237;fica', null, 'form_menu_discente', null,[null, 'Relat&#243;rios Parciais', null, 'form_menu_discente', null,[null, 'Enviar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaParcial.do?dispatch=listarPlanos', 'form_menu_discente', null],
+[null, 'Consultar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaParcial.do?dispatch=listarRelatorios', 'form_menu_discente', null]],
+[null, 'Relat&#243;rios Finais', null, 'form_menu_discente', null,[null, 'Enviar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaFinal.do?dispatch=listarPlanos', 'form_menu_discente', null],
+[null, 'Consultar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaFinal.do?dispatch=listarRelatorios', 'form_menu_discente', null]]],
+[null, 'Certificados e Declara&#231;&#245;es', null, 'form_menu_discente', null,[null, 'Inicia&#231;&#227;o Cient&#237;fica', 'form_menu_discente_discente_menu:A]#{declaracoesPesquisa.listarDeclararoesPlanoTrabalhoBolsista}', 'form_menu_discente', null]],
+[null, 'Congresso de Inicia&#231;&#227;o Cient&#237;fica', null, 'form_menu_discente', null,[null, 'Submeter Trabalho Completo', 'form_menu_discente_discente_menu:A]#{resumoCongressoMBean.iniciarListagem}', 'form_menu_discente', null],
+[null, 'Meus Trabalhos', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/resumoCongresso.do?dispatch=listarResumosAutor', 'form_menu_discente', null],
+[null, 'Certificados', 'form_menu_discente_discente_menu:A]#{certificadoCIC.listarCertificadosUsuario}', 'form_menu_discente', null],
+_cmSplit,[null, 'Baixar Modelo do Trabalho', 'form_menu_discente_discente_menu:A]#{ congressoIniciacaoCientifica.baixarModeloTrabalho }', 'form_menu_discente', null],
+_cmSplit,[null, 'Justificar Aus&#234;ncia - Autor', 'form_menu_discente_discente_menu:A]#{justificativaAusenciaDiscenteCICTMbean.preCadastrarJustificativaAutor}', 'form_menu_discente', null]]],
+['<img src="/sigaa/img/icones/extensao_menu.gif"/>', 'Extens&#227;o', null, 'form_menu_discente', null,[null, 'Consultar A&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{atividadeExtensao.preLocalizar}', 'form_menu_discente', null],
+_cmSplit,[null, 'Meus Planos de Trabalho', 'form_menu_discente_discente_menu:A]#{ planoTrabalhoExtensao.carregarPlanosTrabalhoDiscenteLogado }', 'form_menu_discente', null],
+[null, 'Minhas A&#231;&#245;es como Membro da Equipe', 'form_menu_discente_discente_menu:A]#{ atividadeExtensao.carregarAcoesDiscenteLogado }', 'form_menu_discente', null],
+[null, 'Meus Relat&#243;rios', 'form_menu_discente_discente_menu:A]#{ relatorioBolsistaExtensao.iniciarCadastroRelatorio }', 'form_menu_discente', null],
+[null, 'Certificados e Declara&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{documentosAutenticadosExtensao.participacoesDiscenteUsuarioLogado}', 'form_menu_discente', null],
+[null, 'Inscri&#231;&#227;o On-line em A&#231;&#245;es de Extens&#227;o', 'form_menu_discente_discente_menu:A]#{inscricaoParticipanteAtividadeMBean.iniciaInscricaoCursosEEventosAbertos}', 'form_menu_discente', null],
+[null, 'Visualizar Resultados das Inscri&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{selecaoDiscenteExtensao.iniciarVisualizarResultados}', 'form_menu_discente', null]],
+['<img src="/sigaa/img/icones/monitoria_menu.gif"/>', 'Monitoria', null, 'form_menu_discente', null,[null, 'Consultar Projetos', 'form_menu_discente_discente_menu:A]#{coordMonitoria.situacaoProjeto}', 'form_menu_discente', null],
+_cmSplit,[null, 'Meus Projetos de Monitoria', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/monitoria/DiscenteMonitoria/meus_projetos.jsf', 'form_menu_discente', null],
+[null, 'Meus Relat&#243;rios', 'form_menu_discente_discente_menu:A]#{ relatorioMonitor.listar }', 'form_menu_discente', null],
+[null, 'Meus Certificados', null, 'form_menu_discente', null,[null, 'Certificados de Projetos', 'form_menu_discente_discente_menu:A]#{documentosAutenticadosMonitoria.participacoesDiscenteUsuarioLogado}', 'form_menu_discente', null],
+[null, 'Certificados do SID', 'form_menu_discente_discente_menu:A]#{resumoSid.listarParticipacoesDiscente}', 'form_menu_discente', null]],
+[null, 'Inscrever-se em Sele&#231;&#227;o de Monitoria', 'form_menu_discente_discente_menu:A]#{agregadorBolsas.iniciarBuscar}', 'form_menu_discente', null],
+[null, 'Visualizar Resultado da Sele&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{discenteMonitoria.popularVisualizarResultados}', 'form_menu_discente', null]],
+['<img src="/sigaa/img/projetos/associado_menu.png"/>', 'A&#231;&#245;es Associadas', null, 'form_menu_discente', null,[null, 'Consultar A&#231;&#245;es Associadas', 'form_menu_discente_discente_menu:A]#{ buscaAcaoAssociada.iniciar }', 'form_menu_discente', null],
+_cmSplit,[null, 'Meus Planos de Trabalho', 'form_menu_discente_discente_menu:A]#{ planoTrabalhoProjeto.planosDiscente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Certificados e Declarac&#245;es', 'form_menu_discente_discente_menu:A]#{ declaracaoMembroProjIntegradoMBean.participacoesDiscenteUsuarioLogado }', 'form_menu_discente', null]],
+['<img src="/sigaa/img/bolsas.png"/>', 'Bolsas', null, 'form_menu_discente', null,[null, 'Cadastro &#218;nico', null, 'form_menu_discente', null,[null, 'Aderir', 'form_menu_discente_discente_menu:A]#{ adesaoCadastroUnico.apresentacaoCadastroUnico }', 'form_menu_discente', null],
+[null, 'Consultar Ades&#245;es', 'form_menu_discente_discente_menu:A]#{ adesaoCadastroUnico.listarCadastroUnico }', 'form_menu_discente', null],
+[null, 'Declara&#231;&#227;o de Discente Priorit&#225;rio', 'form_menu_discente_discente_menu:A]#{ declaracaoDiscentePrioritarioMBean.emitirDeclaracaoDiscentePrioritario }', 'form_menu_discente', null]],
+[null, 'Declara&#231;&#227;o de Bolsista', null, 'form_menu_discente', null,[null, 'Assinar Declara&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ declaracaoNaoAcumuloBolsas.iniciarDeclaracao }', 'form_menu_discente', null],
+[null, 'Visualizar Assinaturas', 'form_menu_discente_discente_menu:A]#{ declaracaoNaoAcumuloBolsas.iniciarListaAssinaturas }', 'form_menu_discente', null]],
+_cmSplit,[null, 'Oportunidades de Bolsa', 'form_menu_discente_discente_menu:A]#{ agregadorBolsas.iniciarBuscar }', 'form_menu_discente', null],
+[null, 'Acompanhar Meus Registros de Interesse', 'form_menu_discente_discente_menu:A]#{interessadoBolsa.acompanharInscricoes}', 'form_menu_discente', null],
+[null, 'Minhas Bolsas na Institui&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ relatorioBolsasDiscenteBean.listarBolsasInstituicao }', 'form_menu_discente', null],
+[null, 'Solicita&#231;&#227;o de Bolsas', null, 'form_menu_discente', null,[null, 'Solicita&#231;&#227;o de Bolsa Aux&#237;lio', 'form_menu_discente_discente_menu:A]#{ bolsaAuxilioMBean.iniciarSolicitacaoBolsaAuxilio }', 'form_menu_discente', null],
+[null, 'Solicitar Desbloqueio de Acesso ao RU', 'form_menu_discente_discente_menu:A]#{ desbloqueioAcessoRUMBean.iniciarSolicitacaoDiscente }', 'form_menu_discente', null],
+[null, 'Acompanhar Solicita&#231;&#227;o de Bolsa Aux&#237;lio', 'form_menu_discente_discente_menu:A]#{ bolsaAuxilioMBean.acompanharSituacaoBolsaAuxilio }', 'form_menu_discente', null],
+[null, 'Acompanhar Solicita&#231;&#227;o de Desbloqueio do RU', 'form_menu_discente_discente_menu:A]#{ desbloqueioAcessoRUMBean.listarSolicitacoesDiscente }', 'form_menu_discente', null],
+[null, 'Renovar Bolsa Aux&#237;lio', 'form_menu_discente_discente_menu:A]#{ renovacaoBolsaAuxilioMBean.preCadastrar }', 'form_menu_discente', null]]],
+['<img src="/sigaa/img/estagio/estagio_menu.png"/>', 'Est&#225;gio', null, 'form_menu_discente', null,[null, 'Mural de Vagas', 'form_menu_discente_discente_menu:A]#{ ofertaEstagioMBean.listarOfertasDisponiveis }', 'form_menu_discente', null],
+_cmSplit,[null, 'Pr&#233;-cadastro de Est&#225;gio', 'form_menu_discente_discente_menu:A]#{estagioMBean.iniciarPreCadastro}', 'form_menu_discente', null],
+[null, 'Gerenciar Est&#225;gios', 'form_menu_discente_discente_menu:A]#{buscaEstagioMBean.iniciar}', 'form_menu_discente', null]],
+['<img src="/sigaa/img/relacoes_internacionais/mobilidade.png"/>', 'Rela&#231;&#245;es Internacionais', null, 'form_menu_discente', null,[null, 'Mobilidade', null, 'form_menu_discente', null,[null, 'Editais de Mobilidade', null, 'form_menu_discente', null,[null, 'Realizar Inscri&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{inscricaoMobilidadeMBean.iniciaInscricao}', 'form_menu_discente', null],
+[null, 'Visualizar Inscri&#231;&#227;o/Processo de Mobilidade', 'form_menu_discente_discente_menu:A]#{inscricaoMobilidadeMBean.listaInscricoes}', 'form_menu_discente', null]]]],
+['<img src="/sigaa/img/menu/outros.png"/>', 'Outros', null, 'form_menu_discente', null,['<img src="/sigaa/img/icones/amb_virt.png"/>', 'Ambientes Virtuais', null, 'form_menu_discente', null,[null, 'Comunidades Virtuais', null, 'form_menu_discente', null,[null, 'Buscar Comunidades Virtuais', 'form_menu_discente_discente_menu:L]#{ buscarComunidadeVirtualMBean.criar };0', 'form_menu_discente', null],
+[null, 'Minhas Comunidades', 'form_menu_discente_discente_menu:A]#{ buscarComunidadeVirtualMBean.exibirTodasComunidadesDocente }', 'form_menu_discente', null]]],
+[null, 'Avisar Aus&#234;ncia do Professor', 'form_menu_discente_discente_menu:A]#{ avisoFalta.iniciar }', 'form_menu_discente', null],
+[null, 'Validar E-mail', 'form_menu_discente_discente_menu:A]#{ registroValidacaoEmailDiscenteMBean.entrarRegistroValidacaoEmail }', 'form_menu_discente', null],
+[null, 'Coordena&#231;&#227;o de Curso', null, 'form_menu_discente', null,[null, 'Atendimento ao Aluno', 'form_menu_discente_discente_menu:A]#{ atendimentoAluno.novaPergunta }', 'form_menu_discente', null],
+[null, 'F&#243;rum de Cursos', 'form_menu_discente_discente_menu:A]#{ forum.listarForunsCurso }', 'form_menu_discente', null],
+[null, 'P&#225;gina do Curso', 'form_menu_discente_discente_menu:A]https://sigs.ufrpe.br/sigaa/public/curso/portal.jsf?id=28230822&lc=pt_BR', 'form_menu_discente', null]],
+[null, 'defici&#234;ncia', null, 'form_menu_discente', null,[null, 'Solicitar Apoio &#224; CAENE', 'form_menu_discente_discente_menu:A]#{ solicitacaoApoioNee.visualizaApresentacao }', 'form_menu_discente', null],
+['<img src="/sigaa/img/email_go.png"/>', 'Entrar em Contato', 'form_menu_discente_discente_menu:A]#{ solicitacaoApoioNee.initEntrarContatoCaene}', 'form_menu_discente', null]],
+[null, 'Produ&#231;&#245;es Intelectuais', null, 'form_menu_discente', null,[null, 'Acervo dos Docentes', 'form_menu_discente_discente_menu:A]#{acervoProducao.verAcervoDigital}', 'form_menu_discente', null],
+[null, 'Consultar Defesas de P&#243;s-gradua&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{consultarDefesaMBean.iniciar}', 'form_menu_discente', null]],
+[null, 'Aux&#237;lio Financeiro/Assinatura de Documentos no SIPAC', 'form_menu_discente_discente_menu:L]#{ menuDiscente.redirecionar };/entrarSistema.do?sistema=sipac&vinculoDiscente=true&url=portal_aluno/index.jsf?voltar=/sigaa/verPortalDiscente', 'form_menu_discente', null],
+[null, 'Psicologia', null, 'form_menu_discente', null,[null, 'Inscri&#231;&#245;es para Atividades em Grupo', 'form_menu_discente_discente_menu:A]#{ requisicaoAtendimentoPsicologiaMBean.inicio }', 'form_menu_discente', null],
+[null, 'Confirmar Presen&#231;a em Entrevista', 'form_menu_discente_discente_menu:A]#{ confirmarEntrevista.iniciar }', 'form_menu_discente', null]],
+[null, 'Atendimento M&#233;dico/Odontol&#243;gico', null, 'form_menu_discente', null,[null, 'Solicitar Atendimento M&#233;dico/Odontol&#243;gico', 'form_menu_discente_discente_menu:A]#{ solicitacaoAtendimentoMBean.preCadastrar }', 'form_menu_discente', null],
+[null, 'Acompanhar Solicita&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ solicitacaoAtendimentoMBean.listaSolicitacoes }', 'form_menu_discente', null]],
+[null, 'Relat&#243;rio de Carga Hor&#225;ria Docente', 'form_menu_discente_discente_menu:A]#{relatorioExtratorCargaHorariaMBean.iniciarRelatorioAnaliticoPublico}', 'form_menu_discente', null],
+_cmSplit,['<img src="/sigaa/img/celular_icone.gif"/>', 'Criar senha de acesso por Celular', 'form_menu_discente_discente_menu:A]#{ senhaMobileMBean.iniciar }', 'form_menu_discente', null],
+[null, 'Consultar Processos do Aluno', 'form_menu_discente_discente_menu:A]#{ consultaProcesso.iniciar }', 'form_menu_discente', null],
+['<img src="/sigaa/img/projeto/orcamento.png"/>', 'Compra de Cr&#233;ditos', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/entrarSistema.do?sistema=sipac&vinculoDiscente=true&url=restaurante/vendas/compra_credito.jsf?voltar=/sigaa/verPortalDiscente', 'form_menu_discente', null],
+['<img src="/sigaa/img/icones/restaurante_small.gif"/>', 'Saldo do Cart&#227;o do Restaurante', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/entrarSistema.do?sistema=sipac&vinculoDiscente=true&url=restaurante/vendas/saldo_cartao.jsf?voltar=/sigaa/verPortalDiscente', 'form_menu_discente', null],
+[null, 'Mes&#225;rio Volunt&#225;rio', 'form_menu_discente_discente_menu:A]#{ mesarioVoluntarioMBean.iniciar }', 'form_menu_discente', null],
+[null, 'Dossi&#234; Eletr&#244;nico do Aluno', 'form_menu_discente_discente_menu:A]#{ documentosDiscenteMBean.selecionaDiscente }', 'form_menu_discente', null]]];</script><div id="form_menu_discente_discente_menu"></div>
+<script type="text/javascript">	if(window.cmDraw!=undefined) { cmDraw ('form_menu_discente_discente_menu', form_menu_discente_discente_menu, 'hbr', cmThemeOffice, 'ThemeOffice');}</script><input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="j_id56"/>
+</form>
+
+</div>
+</div>
+<script>
+function redirectManual(){
+	return window.open("https://sistema.ouvidorias.gov.br/publico/Manifestacao/RegistrarManifestacao.aspx?ReturnUrl=%2f","_blank");
+}
+</script>
+
+
+
+<style>	
+	.colCodigo{text-align:center !important}
+	.colObg{text-align:center !important}
+	.colAtivo{text-align:left !important; width: 10%; !important}
+	.colMatriz{text-align:left !important}
+	.colExpressao{text-align:left !important; width: 55%;}
+	.colPeriodo{text-align:right !important}
+	.colCurriculo{text-align:left !important}
+	.colData{text-align:left !important}
+</style>	
+<h2>  Resumo do Componente Curricular</h2>
+
+	
+	
+	
+	<div class="infoAltRem">
+	<img src="/sigaa/img/destaque.png"/><span style="font-weight:bold;">: Livro associado a um material da biblioteca</span>
+</div><table class="visualizacao" width="100%">
+		
+			
+			
+				<caption>Dados Gerais do Componente Curricular</caption>
+			
+				
+		<tbody><tr>
+			<th>Tipo do Componente Curricular: </th>
+			<td>MÓDULO</td>
+		</tr>
+		
+		<tr>
+			<th width="295px;"><b>Modalidade de Educação:</b></th>
+			<td>Presencial
+		</td></tr>
+		<tr>
+			<th>Unidade Responsável:</th>
+			<td>DEPARTAMENTO DE COMPUTAÇÃO-DC - RECIFE - 11.01.60</td>
+		</tr>
+		
+		
+		<tr>
+			<th width="30%">Código:</th>
+			<td>14065</td>
+		</tr>
+		<tr>
+			<th>Nome:</th>
+			<td>SISTEMAS OPERACIONAIS</td>
+		</tr>
+		<tr>
+			<th>Pré-Requisitos:</th>
+			<td>
+				-
+				
+			</td>
+		</tr>
+		<tr>
+			<th>Co-Requisitos:</th>
+			<td>
+				-
+				
+			</td>
+		</tr>
+		<tr>
+			<th>Equivalências:</th>
+			<td>
+				
+					-
+					
+				
+			</td>
+		</tr>
+		
+		
+					
+		<tr>
+			<th>Matriculável On-Line:</th>
+			<td>Sim</td>
+		</tr>
+		<tr>
+			<th>Horário Flexível da Turma:</th>
+			<td>Sim</td>
+		</tr>
+		<tr>
+			<th>Horário Flexível do Docente:</th>
+			<td>Sim</td>
+		</tr>
+		<tr>
+			<th>Obrigatoriedade de Nota Final:</th>
+			<td>Sim</td>
+		</tr>
+		<tr>
+			<th>Pode Criar Turma Sem Solicitação:</th>
+			<td>Sim</td>
+		</tr>			
+		<tr>
+			<th>Necessita de Orientador:</th>
+			<td>Não</td>
+		</tr>
+			
+						
+			<tr>
+				<th>Possui Subturmas:</th>
+				<td>Não</td>
+			</tr>
+		
+		<tr>
+			<th>Exige Horário:</th>
+			<td>Sim</td>
+		</tr>
+		
+		
+		
+		
+		<tr>
+			<th valign="top">Quantidade de Avaliações:</th>
+			<td></td>
+		</tr>
+		
+		
+			<tr>
+				<th valign="top">Ementa/Descrição:</th>
+				<td>Software básico. Gerenciamento de memória. Memória virtual. Conceito de processo. Gerência de processador: escalonamento de processos, monoprocessamento e multiprocessamento. Concorrência e sincronização de processos. Alocação de recursos e deadlocks. Gerenciamento de arquivos. Gerenciamento de dispositivos de entrada/saída. Segurança. Exemplos de Sistemas Operacionais. Análise de desempenho.</td>
+			</tr>
+			
+		
+		<!-- dados do bloco -->
+		
+		
+		
+	<tr>
+		<td colspan="2">
+			<table class="subFormulario" style="width:100%;">
+				<caption>Cargas Horárias</caption>	
+						
+				
+				
+					
+						
+						<tbody><tr class="infoaltrem" style="background: #C8D5EC; font-weight: bold; color: black; padding-left: 40px;">
+							<td colspan="5">Aula</td>
+						</tr>
+										
+					<tr class="linhaPar">						
+							
+							
+								<td class="box">Carga Horária de Aula Teórica - Presencial 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda962736&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda962736&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda962736&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda962736">
+		
+Tempo estimado a ser cumprido pelo professor e pelo estudante exclusivamente em atividades de ensino-aprendizagem teóricas, na modalidade presencial, mediadas de forma expositiva e/ou dialogada pelo professor, responsável pelo acompanhamento discente integral e síncrono em ambiente específico. (Ex.: sala de aula, auditório, anfiteatro, museu etc.)	</div>
+</span>
+</td>
+												
+							
+							
+								<td>15h</td>
+																		
+					</tr>	
+				
+										
+					<tr class="linhaImpar">						
+							
+							
+								<td class="box">Carga Horária de Aula Prática - Presencial 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda620718&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda620718&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda620718&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda620718">
+		
+Tempo estimado a ser cumprido pelo professor e pelo estudante exclusivamente em atividades de ensino-aprendizagem práticas, na modalidade presencial, mediadas de forma instrumental pelo professor, responsável pelas mediações expositivas e/ou dialogadas complementares e pelo acompanhamento discente integral e síncrono em ambiente específico. (Ex.: sala de aula, laboratório, hospital, fazenda etc.)	</div>
+</span>
+</td>
+												
+							
+							
+								<td>45h</td>
+																		
+					</tr>	
+				
+										
+					<tr class="linhaPar">						
+							
+							
+								<td class="box">Carga Horária de Aula Extensionista - Presencial 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda324864&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda324864&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda324864&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda324864">
+		
+Tempo estimado a ser cumprido pelo professor e pelo estudante exclusivamente em atividades de extensão, na modalidade presencial, assumindo este último o papel de executor da ação.	</div>
+</span>
+</td>
+												
+							
+							
+								<td>0h</td>
+																		
+					</tr>	
+				
+										
+					<tr class="linhaImpar">						
+							
+								<td class="box" style="background: #DEDFE3; color: black; border-bottom: 1px solid white;">
+									<b>Subtotal de Carga Horária de Aula - Presencial</b> 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda199316&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda199316&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda199316&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda199316">
+		
+Subtotal do conjunto de cargas-horárias de aulas presenciais do componente cumpridas na modalidade presencial, com exceção da Carga Horária de Orientação Docente.	</div>
+</span>
+
+								</td>
+							
+												
+							
+								<td style="background: #DEDFE3; font-weight: bold; color: black; border-bottom: 1px solid white;"><b>60h</b></td>
+							
+																		
+					</tr>	
+				
+										
+					<tr class="linhaPar">						
+							
+							
+								<td class="box">Carga Horária de Aula Teórica - a Distância 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda70975&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda70975&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda70975&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda70975">
+		
+Tempo estimado a ser cumprido pelo professor e pelo estudante exclusivamente em atividades de ensino-aprendizagem teóricas, na modalidade a distância, mediadas de forma expositiva e/ou dialogada pelo professor, responsável pelo acompanhamento discente integral, síncrono ou assíncrono, em ambiente virtual de aprendizagem.	</div>
+</span>
+</td>
+												
+							
+							
+								<td>0h</td>
+																		
+					</tr>	
+				
+										
+					<tr class="linhaImpar">						
+							
+							
+								<td class="box">Carga Horária de Aula Prática - a Distância 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda48544&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda48544&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda48544&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda48544">
+		
+Tempo estimado a ser cumprido pelo professor e pelo estudante exclusivamente em atividades de ensino-aprendizagem práticas, na modalidade a distância, mediadas de forma instrumental pelo professor, responsável pelas mediações expositivas e/ou dialogadas complementares e pelo acompanhamento discente integral, síncrono ou assíncrono, em ambiente virtual de aprendizagem.	</div>
+</span>
+</td>
+												
+							
+							
+								<td>0h</td>
+																		
+					</tr>	
+				
+										
+					<tr class="linhaPar">						
+							
+							
+								<td class="box">Carga Horária de Aula Extensionista - a Distância 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda662044&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda662044&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda662044&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda662044">
+		
+Tempo estimado a ser cumprido pelo professor e pelo estudante exclusivamente em atividades de extensão, na modalidade a distância, assumindo este último o papel de executor da ação.	</div>
+</span>
+</td>
+												
+							
+							
+								<td>0h</td>
+																		
+					</tr>	
+				
+										
+					<tr class="linhaImpar">						
+							
+								<td class="box" style="background: #DEDFE3; color: black; border-bottom: 1px solid white;">
+									<b>Subtotal de Carga Horária de Aula - a Distância</b> 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda254849&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda254849&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda254849&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda254849">
+		
+Subtotal do conjunto de cargas-horárias do componente de aulas cumpridas na modalidade a distância, com exceção da Carga Horária de Orientação Docente.	</div>
+</span>
+
+								</td>
+							
+												
+							
+								<td style="background: #DEDFE3; font-weight: bold; color: black; border-bottom: 1px solid white;"><b>0h</b></td>
+							
+																		
+					</tr>	
+				
+										
+					<tr class="linhaPar">						
+							
+								<td class="box" style="background: #DEDFE3; color: black; border-bottom: 1px solid white;">
+									<b> Total de Carga Horária de Aula do Componente</b> 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda37347&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda37347&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda37347&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda37347">
+		
+Total do conjunto de cargas-horárias de aulas do componente cumpridas nas modalidades presencial e a distância, com exceção da Carga Horária de Orientação Docente.	</div>
+</span>
+
+								</td>
+							
+												
+							
+								<td style="background: #DEDFE3; font-weight: bold; color: black; border-bottom: 1px solid white;"><b>60h</b></td>
+							
+																		
+					</tr>	
+				
+										
+					<tr class="linhaImpar">						
+							
+								<td class="box" style="background: #DEDFE3; color: black; border-bottom: 1px solid white;">
+									<b> Total de Carga Horária do Componente</b> 	<img src="/shared/img/geral/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda417717&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda417717&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda417717&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda417717">
+		
+Total do conjunto de cargas horárias do componente cumpridas nas modalidades presencial e a distância.	</div>
+</span>
+
+								</td>
+							
+												
+							
+								<td style="background: #DEDFE3; font-weight: bold; color: black; border-bottom: 1px solid white;"><b>60h</b></td>
+							
+																		
+					</tr>	
+				
+			</tbody></table>
+		</td>
+	</tr>
+
+<style>
+.box {
+	  display: flex;
+	}
+</style>
+
+		
+		
+
+
+	
+
+		
+		
+		
+		
+		
+		
+		
+		
+			<tr>
+				<td colspan="2">
+					<table class="subFormulario table table-striped" width="100%">
+					<caption>Equivalência(s) Específica(s)</caption>
+					<thead>
+						<tr>
+							<th class="colMatriz">Equivalências Específicas
+							</th><th class="colMatriz">Matriz Curricular
+							</th><th class="colCurriculo">Currículo
+							</th><th class="colData">Início da Vigência
+							</th><th class="colData">Fim da Vigência
+						</th></tr>
+					</thead>
+					<tbody>
+					
+					<tr class="linhaPar">
+						<td class="colMatriz"> ( <acronym title="06259 - INFRA-ESTRUTURA DE SOFTWARE">06259</acronym> ) 
+</td>
+						<td class="colMatriz"> BACHARELADO EM CIÊNCIA DA COMPUTAÇÃO - RECIFE - BACHARELADO - Presencial - T</td>
+						<td class="colCurriculo"> CCP02 - 2012.1</td>
+						<td class="colData" style="text-align:center">2005.2</td>
+						
+						
+							<td class="colData" style="text-align:center"></td>
+						
+					</tr>
+					
+					<tr class="linhaImpar">
+						<td class="colMatriz"> ( <acronym title="06259 - INFRA-ESTRUTURA DE SOFTWARE">06259</acronym> ) 
+</td>
+						<td class="colMatriz"> LICENCIATURA EM COMPUTAÇÃO - RECIFE - LICENCIATURA - Presencial - N</td>
+						<td class="colCurriculo"> LCP01 - 2018.1</td>
+						<td class="colData" style="text-align:center">2005.2</td>
+						
+						
+							<td class="colData" style="text-align:center"></td>
+						
+					</tr>
+					
+					</tbody>
+					</table>
+				</td>
+			</tr>
+		
+		
+		
+		
+		
+		
+			<tr>
+				<td colspan="2">
+					<table class="subFormulario table table-striped" width="100%">
+					<caption>Expressões específicas de currículo cadastradas para este componente</caption>
+					<thead>
+						<tr>
+							<td class="colMatriz">Currículo</td>
+							<td class="colMatriz">Expressão</td>
+							<td class="colMatriz">Tipo</td>
+							<td class="colData">Início da Vigência</td>
+							<td class="colData">Fim da Vigência</td>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<tr class="linhaPar">
+						<td class="colMatriz"> BACHARELADO EM CIÊNCIA DA COMPUTAÇÃO - RECIFE - BACHARELADO - Presencial - T - 2009.2 - CCP01  </td>
+						<td class="colMatriz"> ( <acronym title="06325 - FÍSICA APLICADA À COMPUTAÇÃO">06325</acronym> ) E ( <acronym title="14063 - CIRCUITOS DIGITAIS">14063</acronym> ) E ( <acronym title="14064 - ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES">14064</acronym> ) 
+</td>
+												
+							<td class="colMatriz">Pré-Requisito</td>
+						
+						
+						<td style="text-align:center">2009.2</td>
+						<td style="text-align:center">.</td>
+					</tr>
+					
+					<tr class="linhaImpar">
+						<td class="colMatriz"> BACHARELADO EM CIÊNCIA DA COMPUTAÇÃO - RECIFE - BACHARELADO - Presencial - T - 2012.1 - CCP02  </td>
+						<td class="colMatriz"> ( <acronym title="14063 - CIRCUITOS DIGITAIS">14063</acronym> ) E ( <acronym title="14064 - ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES">14064</acronym> ) 
+</td>
+												
+							<td class="colMatriz">Pré-Requisito</td>
+						
+						
+						<td style="text-align:center">2011.2</td>
+						<td style="text-align:center">.</td>
+					</tr>
+					
+					<tr class="linhaPar">
+						<td class="colMatriz"> LICENCIATURA EM COMPUTAÇÃO - RECIFE - LICENCIATURA - Presencial - N - 2018.1 - LCP01  </td>
+						<td class="colMatriz"> ( <acronym title="06214 - ALGORITMOS E ESTRUTURAS DE DADOS">06214</acronym> ) E ( <acronym title="14063 - CIRCUITOS DIGITAIS">14063</acronym> ) E ( <acronym title="14064 - ARQUITETURA E ORGANIZAÇÃO DE COMPUTADORES">14064</acronym> ) E ( <acronym title="14083 - PROGRAMAÇÃO I">14083</acronym> ) E ( <acronym title="14203 - MATEMÁTICA DISCRETA I">14203</acronym> ) 
+</td>
+												
+							<td class="colMatriz">Pré-Requisito</td>
+						
+						
+						<td style="text-align:center">2018.2</td>
+						<td style="text-align:center">.</td>
+					</tr>
+					
+					</tbody>
+					</table>
+				</td>
+			</tr>
+		
+	
+		<tr>
+			<td colspan="2">
+				<table id="listaCurriculosComponente" class="subFormulario" width="100%">
+<caption>Currículos</caption><thead>
+<tr>
+<th class="colCodigo" scope="col">Código</th>
+<th class="colCodigo" scope="col">Ano.Período de Implementação</th>
+<th class="colMatriz" scope="col">Matriz Curricular</th>
+<th class="colObg" scope="col">Obrigatória</th>
+<th class="colPeriodo" scope="col">Período</th>
+<th class="colAtivo" scope="col">Ativo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="linhaPar">
+<td class="colCodigo">CCP02</td>
+<td class="colCodigo">2012.1</td>
+<td class="colMatriz">BACHARELADO EM CIÊNCIA DA COMPUTAÇÃO - RECIFE - BACHARELADO - Presencial - T</td>
+<td class="colObg">Sim</td>
+<td class="colPeriodo">5</td>
+<td class="colAtivo">Sim</td>
+</tr>
+<tr class=" linhaImpar">
+<td class="colCodigo">CCP01</td>
+<td class="colCodigo">2009.2</td>
+<td class="colMatriz">BACHARELADO EM CIÊNCIA DA COMPUTAÇÃO - RECIFE - BACHARELADO - Presencial - T</td>
+<td class="colObg">Sim</td>
+<td class="colPeriodo">6</td>
+<td class="colAtivo">Não</td>
+</tr>
+<tr class="linhaPar">
+<td class="colCodigo">LCP01</td>
+<td class="colCodigo">2018.1</td>
+<td class="colMatriz">LICENCIATURA EM COMPUTAÇÃO - RECIFE - LICENCIATURA - Presencial - N</td>
+<td class="colObg">Sim</td>
+<td class="colPeriodo">5</td>
+<td class="colAtivo">Sim</td>
+</tr>
+</tbody>
+</table>
+	
+			</td>
+		</tr>
+
+		
+
+	</tbody></table>
+
+	<br/>
+	<center>
+	<a href="javascript: history.go(-1);"> &lt;&lt; Voltar </a>
+	</center>
+
+
+
+	
+	
+		
+
+
+
+<div class="clear"> </div>
+
+</div> 
+	<br/>
+
+	
+	
+	<div style="width: 80%; text-align: center; margin: 0 auto;">
+		<a href="/sigaa/verPortalDiscente.do">Portal do Discente</a>
+	</div>
+	
+	
+
+	<div id="rodape">
+		<p>	SIGAA | Secretaria de Tecnologias Digitais (STD) - https://servicosdigitais.ufrpe.br/help | Copyright © 2006-2026 - UFRN - producao-jboss02.producao-jboss02
+		
+		 
+			 - <a onclick="javascript:versao();">v4.19.10-22</a>
+				
+		</p>
+	</div>
+
+
+</div>  
+
+<div id="painel-mensagem-envio"> </div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- MYFACES JAVASCRIPT -->
+
+
+
+
+ 
+	<script type="text/javascript" charset="UTF-8">
+		function versao(){
+			var msg='';
+			msg+='SIGAA 4.19.10-22,  publicado em: 02/04/2026 16:13\n\n';
+			msg+='Depend\u00eancias:\n';
+			msg+='Arquitetura 5.2.1\n';
+			msg+='Entidades Comuns 3.1.1\n';
+			msg+='Servicos Integrados 3.1.1\n';
+			msg+='SharedResources 3.1.0\n';
+			msg+='Servicos Remoto Biblioteca 1.0.3\n';
+			msg+='SIGAA Mobile Objects 1.0.0\n\n';
+			msg+='Copyright SINFO/UFRN';
+			alert(msg);
+		}	
+	</script>
+
+
+<script language="javascript">
+Relogio.init(25);
+</script>
+
+	
+</body></html>

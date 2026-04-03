@@ -1,0 +1,891 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html class="background" xmlns="http://www.w3.org/1999/xhtml"><head>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/JSCookMenu.js"><!--
+
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/MyFacesHack.js"><!--
+
+//--></script>
+<script type="text/javascript"><!--
+var myThemeOfficeBase='/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/ThemeOffice/';
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/navmenu.jscookmenu.HtmlJSCookMenuRenderer/ThemeOffice/theme.js"><!--
+
+//--></script>
+<link rel="stylesheet" href="/sigaa/css/jscookmenu/ThemeOffice/theme.css" type="text/css"/>
+<link rel="stylesheet" href="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/calendar.HtmlCalendarRenderer/WH/theme.css" type="text/css"/>
+<link rel="stylesheet" href="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/calendar.HtmlCalendarRenderer/DB/theme.css" type="text/css"/>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/prototype.PrototypeResourceLoader/prototype.js"><!--
+
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/calendar.HtmlCalendarRenderer/date.js"><!--
+
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/calendar.HtmlCalendarRenderer/popcalendar.js"><!--
+
+//--></script>
+<script type="text/javascript" src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/inputTextHelp.HtmlTextHelpRenderer/inputTextHelp.js"><!--
+
+//--></script>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
+
+<title>SIGAA - Sistema Integrado de Gestão de Atividades Acadêmicas</title>
+<link class="component" href="/sigaa/a4j/s/3_3_3.Finalorg/richfaces/renderkit/html/css/basic_classes.xcss/DATB/eAF7sqpgb-jyGdIAFrMEaw__.jsf" rel="stylesheet" type="text/css"/><link class="component" href="/sigaa/a4j/s/3_3_3.Finalorg/richfaces/renderkit/html/css/extended_classes.xcss/DATB/eAF7sqpgb-jyGdIAFrMEaw__.jsf" media="rich-extended-skinning" rel="stylesheet" type="text/css"/><script type="text/javascript">window.RICH_FACES_EXTENDED_SKINNING_ON=true;</script><script src="/sigaa/a4j/g/3_3_3.Finalorg/richfaces/renderkit/html/scripts/skinning.js.jsf" type="text/javascript"></script><link rel="shortcut icon" href="/sigaa/img/sigaa.ico"/>
+
+<script type="text/javascript" src="/shared/jsBundles/jawr_loader.js"></script>
+<script type="text/javascript">
+                JAWR.loader.style('/bundles/css/sigaa_base.css', 'all');
+        		JAWR.loader.style('/css/ufrn_print.css', 'print');
+        		JAWR.loader.script('/bundles/js/sigaa_base.js');
+</script>
+<link rel="stylesheet" type="text/css" media="all" href="/sigaa/cssBundles/gzip_N986783676/bundles/css/sigaa.css"/>
+
+
+<link rel="alternate stylesheet" type="text/css" media="screen" title="mono" href="/sigaa/css/mono.css"/>
+<link rel="alternate stylesheet" type="text/css" media="screen" title="contraste" href="/sigaa/css/contraste.css"/>
+
+<!-- FontAwesome -->
+<link rel="stylesheet" type="text/css" href="/shared/beta/css/font-awesome.css" media="screen"/>
+
+<!-- Painel Genérico para telas Modal -->
+<script type="text/javascript" src="/shared/javascript/paineis/painel_generico.js"></script>
+
+<script src="/sigaa/javascript/styleswitch.js" type="text/javascript"></script>
+
+<script src="/sigaa/javascript/prevenir-duplo-clique.js" type="text/javascript"></script>
+
+
+	
+	
+		<!-- Botão de informar um problema -->
+		<link rel="stylesheet" type="text/css" href="/shared/informar-problema/css/informar-problema.css?ver=1.1" media="screen"/>
+		<script type="text/javascript" src="/shared/informar-problema/js/webcomponents.min.js?ver=1.1"></script>
+		<script type="text/javascript" src="/shared/informar-problema/js/html2canvas.js?ver=1.1"></script>
+		<script type="text/javascript" src="/shared/informar-problema/js/informar-problema.js?ver=1.1"></script>
+		<!-- FIM botão de informar um problema -->
+	
+	
+
+
+
+<script type="text/javascript">
+		var mensagem;
+		var initMensagem = function() {
+			mensagem = new Mensagem();
+		}
+		YAHOO.util.Event.addListener(window,'load', initMensagem);
+		
+		function isIE(){
+		
+					return false;
+			
+		}
+</script>
+
+<script type="text/javascript" src="/sigaa/javascript/jsCookMenuHack.js"></script>
+<!-- Fim dos imports para abrir chamado -->
+
+	<script src="/shared/javascript/STICookieConsent.js"></script>
+	<script>
+	    document.addEventListener("DOMContentLoaded", () => {
+	    	generateCookieConsentModal("SIGAA", "N&#243;s usamos cookies para melhorar sua experi&#234;ncia de navega&#231;&#227;o no portal. Ao utilizar o %sitename%, voc&#234; concorda com a pol&#237;&#173;tica de monitoramento de cookies da UFRPE.", "https://ufrn.br/institucional/politica-de-privacidade-e-termos-de-uso", "https://ufrn.br/institucional/politica-de-cookies");
+	    })
+	</script>
+	
+</head>
+
+<body>
+
+
+
+
+
+
+
+	<div id="container">
+	<div id="cabecalho">
+		<div id="info-sistema">
+			<h1><span>UFRPE - SIGAA -</span></h1>
+			<h3>Sistema Integrado de Gestão de Atividades Acadêmicas</h3>
+			<div class="dir">
+				
+					
+					<style>
+#info-sistema span.sair-sistema,
+	#info-sistema #tempoSessao{
+	display: inline;
+	right: inherit;
+	position: relative;
+	top: 0;
+	padding-right: inherit;
+}
+
+#info-sistema div.dir{
+	top:0;
+	right:0;
+	text-align: right;
+	width: auto;
+	position: absolute;
+	margin:0;
+	padding: 0;
+	height:16px;
+	display: inline;
+	padding-right:5px;
+	color: #FFF;
+}
+#info-sistema span.acessibilidade{
+	padding: 0 5px;
+	border: solid #D99C44;
+	border-width: 0 1px 0 0;
+	margin: 0 5px;
+	padding: 0 5px;
+}
+	#info-sistema span.acessibilidade a{
+		font-size: 1.1em;
+		font-weight: bolder;
+		color: #FFF;
+		margin-left: 2px;
+		letter-spacing: 0.1px;
+		word-spacing: 0.1px;
+	}
+	#info-sistema span.acessibilidade a.fonteMenor strong{
+		font-size: 0.9em;
+	}
+	.rich-tabpanel-content {
+		font-size: inherit;
+	}	
+</style>
+<span class="acessibilidade">
+	<a class="fonteMaior" title="Aumentar a texto" alt="Aumentar a texto" href="#">
+		<strong>A</strong>+
+	</a>
+	<a class="fonteMenor" title="Diminuir o texto" alt="Diminuir o texto" href="#">
+		<strong>A</strong>-
+	</a>
+</span>
+
+	<span class="acessibilidade">
+		<a title="Ajuda" alt="Ajuda" href="http://manuais.sigs.ufrpe.br/doku.php?id=suporte:sigaa:visao_geral" target="_blank">
+			Ajuda?
+		</a>
+	</span>
+
+<script type="text/javascript" src="/shared/javascript/jquery/jquery-1.4.4.min.js"></script>
+<script src="/sigaa/javascript/jquery.fontsize.js" type="text/javascript"></script>
+<script type="text/javascript">
+	redimensionarFonte('.acessibilidade', '#conteudo', 11, 11, 14);
+</script>
+<script>var $jq = jQuery.noConflict();</script>
+					<span id="tempoSessao"></span>
+					<span class="sair-sistema"> <a href="/sigaa/logar.do?dispatch=logOff">SAIR</a> </span>
+				
+			</div>
+		</div>
+	 
+
+	<div id="painel-usuario">
+	
+		<div id="menu-usuario">
+		<ul>
+			<li class="modulos">
+			
+				<span id="modulos"> <a href="#" id="show-modulos"> Módulos </a> </span>
+			
+			</li>
+			
+				
+				<li class="caixa-postal">
+				
+					
+									
+						<a href="/sigaa/abrirCaixaPostal.jsf?sistema=2"> 
+							
+							Caixa Postal					
+							
+							 
+						</a>
+					
+				
+				</li>
+				
+			
+			
+			
+				<li class="chamado">
+				
+					
+					
+						
+						
+							<a href="#" onclick="window.open(&#39;https://servicosdigitais.ufrpe.br&#39;, &#39;chamado&#39;, &#39;scrollbars=1,width=700,height=600&#39;)">Abrir Chamado</a>
+						
+					
+				
+				</li>
+			 
+			
+			
+			
+				 
+					<li class="menus">
+						<a href="/sigaa/verPortalDiscente.do">Menu Discente</a>
+					</li>
+				 
+			
+			
+			
+				
+
+<li class="dados-pessoais">
+	
+		<a href="#" onclick="window.open(&#39;/sigaa/alterar_dados.jsf&#39;,&#39;&#39;,&#39;width=670,height=430, top=100, left=100, scrollbars&#39; )">Alterar senha</a>
+	
+</li>
+			
+
+			
+				<!-- INICIO botão Informar problema -->
+					
+				<!-- FIM botão Informar problema -->
+			
+			
+		</ul>
+		
+		
+		
+		
+		</div>
+
+		<div id="info-usuario">
+
+		<p class="periodo-atual">
+			
+				Semestre atual: <strong>2026.1</strong>			
+			
+			<br/>
+			
+		</p>		
+		<p class="usuario">
+		
+			<span title="DAVI PIRES A. DE CARVALHO">
+				DAVI PIRES A. DE CARVALHO
+			</span>
+			
+			
+		
+		</p>
+
+		<p class="unidade">
+			UNIVERSIDADE FEDERAL RURAL DE PERNAMBUCO
+			 (11.00)
+			
+		</p>
+
+		</div>
+	
+	<div id="menu-principal"></div>
+	</div>
+	</div>
+	
+
+	<div id="conteudo">
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+<script type="text/javascript">
+//Fun&#231;&#227;o adicionada no cabe&#231;alho para evitar a reescrita em cada JSP.
+function contarCaracteres(field, idMostraQuantidadeUsuario, maxlimit) {
+	
+	if (field.value.length > maxlimit){
+		field.value = field.value.substring(0, maxlimit);
+	}else{ 
+		document.getElementById(idMostraQuantidadeUsuario).innerHTML = maxlimit - field.value.length ;
+	} 
+}
+</script>
+
+    <script type="text/javascript" src="/shared/javascript/prototype.js"></script>
+    <script type="text/javascript">
+        JAWR.loader.script('/bundles/js/scriptaculous.js');
+		JAWR.loader.script('/javascript/ajaxtags/overlibmws.js');
+		JAWR.loader.script('/javascript/ajaxtags/ajaxtags.js');
+		JAWR.loader.style('/javascript/ajaxtags/css/ajaxtags.css');
+     </script>
+	
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+<div id="menu-dropdown">
+<div class="wrapper">
+
+
+<form id="form_menu_discente" name="form_menu_discente" method="post" action="/sigaa/geral/componente_curricular/busca_geral.jsf" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="form_menu_discente" value="form_menu_discente"/>
+
+
+<input type="hidden" name="id" value="107543"/>
+<input type="hidden" name="jscook_action"/>
+
+<script type="text/javascript">var form_menu_discente_discente_menu =
+[['<img src="/sigaa/img/icones/ensino_menu.gif"/>', 'Ensino', null, 'form_menu_discente', null,['<img src="/sigaa/img/celular_icone.gif"/>', 'Consultar Minhas Notas', 'form_menu_discente_discente_menu:A]#{ relatorioNotasAluno.gerarRelatorio }', 'form_menu_discente', null],
+[null, 'Consultar &#205;ndices Acad&#234;micos', 'form_menu_discente_discente_menu:A]#{ indiceAcademicoMBean.selecionaDiscente }', 'form_menu_discente', null],
+['<img src="/sigaa/img/celular_icone.gif"/>', 'Emitir Atestado de Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatricula }', 'form_menu_discente', null],
+[null, 'Emitir Atestado de Matr&#237;cula para Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatriculaPeriodoSuplementar }', 'form_menu_discente', null],
+[null, 'Emitir Hist&#243;rico', 'form_menu_discente_discente_menu:A]#{ portalDiscente.historico }', 'form_menu_discente', null],
+[null, 'Emitir Declara&#231;&#227;o de V&#237;nculo', 'form_menu_discente_discente_menu:A]#{ declaracaoVinculo.emitirDeclaracao }', 'form_menu_discente', null],
+[null, 'Impress&#227;o de Diploma Digital', 'form_menu_discente_discente_menu:A]#{ buscaDiplomaDigitalMBean.iniciarBuscaDiscente }', 'form_menu_discente', null],
+_cmSplit,['<img src="/sigaa/img/graduacao/coordenador/documento.png"/>', 'Alunos Aptos a Colar Grau', 'form_menu_discente_discente_menu:A]#{ listaAssinaturasGraduandos.listarDiscentesAptosColarGrau }', 'form_menu_discente', null],
+[null, 'Solicitar Valida&#231;&#227;o de Documentos para Registro de Diploma', 'form_menu_discente_discente_menu:A]#{documentoDiplomaDiscenteMBean.iniciarSolicitacao}', 'form_menu_discente', null],
+_cmSplit,[null, 'Solicitar Aproveitamento/Incorpora&#231;&#227;o de Estudos', 'form_menu_discente_discente_menu:A]#{solicitacaoAproveitamentoEstudosMBean.iniciarSolicitacao}', 'form_menu_discente', null],
+[null, 'Minhas Solicita&#231;&#245;es de Aproveitamento', 'form_menu_discente_discente_menu:A]#{solicitacaoAproveitamentoEstudosMBean.listar}', 'form_menu_discente', null],
+_cmSplit,[null, 'Avalia&#231;&#227;o Institucional', null, 'form_menu_discente', null,[null, 'Preencher a Avalia&#231;&#227;o Institucional', 'form_menu_discente_discente_menu:A]#{ calendarioAvaliacaoInstitucionalBean.listar }', 'form_menu_discente', null],
+_cmSplit,[null, 'Rever a Avalia&#231;&#227;o Anterior', 'form_menu_discente_discente_menu:A]#{ avaliacaoInstitucionalAnterior.listaAnterior }', 'form_menu_discente', null],
+[null, 'Consultar o Resultado da Avalia&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ relatorioAvaliacaoMBean.iniciarConsultaPublica }', 'form_menu_discente', null],
+[null, 'Observa&#231;&#245;es dos Docentes Sobre Minhas Turmas', 'form_menu_discente_discente_menu:A]#{ relatorioAvaliacaoMBean.iniciarObservacoesTurmasDiscente }', 'form_menu_discente', null]],
+_cmSplit,[null, 'Matr&#237;cula On-Line', null, 'form_menu_discente', null,[null, 'Realizar Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.telaInstrucoes}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula em Turma de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ confirmacaoMatriculaFeriasBean.iniciar}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula em Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacaoSuplementar.telaInstrucoes}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula Extraordin&#225;ria', 'form_menu_discente_discente_menu:A]#{ matriculaExtraordinaria.iniciar}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula Extraordin&#225;ria em Turma de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ matriculaExtraordinaria.iniciarFerias}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula Extraordin&#225;ria em Turma Suplementar', 'form_menu_discente_discente_menu:A]#{ matriculaExtraordinariaSuplementar.iniciar}', 'form_menu_discente', null],
+[null, 'Realizar Matr&#237;cula com Flexibiliza&#231;&#227;o de Pr&#233;-requisito', 'form_menu_discente_discente_menu:A]#{ matriculaFlexPreReq.iniciarDiscente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Ver Comprovante de Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.verComprovanteSolicitacoes}', 'form_menu_discente', null],
+[null, 'Ver Comprovante de Matr&#237;cula para Turmas de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ portalDiscente.atestadoMatriculaTurmaFerias}', 'form_menu_discente', null],
+[null, 'Ver Comprovante de Matr&#237;cula para Turmas Suplementares', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacaoSuplementar.verComprovanteSolicitacoes}', 'form_menu_discente', null],
+[null, 'Ver Orienta&#231;&#245;es de Matr&#237;cula', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.acompanharSolicitacoes}', 'form_menu_discente', null],
+[null, 'Ver Resultado do Processamento', 'form_menu_discente_discente_menu:A]#{ matriculaGraduacao.verComprovanteSolicitacoes}', 'form_menu_discente', null],
+_cmSplit,[null, 'Meu Plano de Matr&#237;culas', 'form_menu_discente_discente_menu:A]#{ planoMatriculaBean.gerar }', 'form_menu_discente', null]],
+[null, 'Solicita&#231;&#245;es de Turma de F&#233;rias', null, 'form_menu_discente', null,[null, 'Solicitar Turma de F&#233;rias', 'form_menu_discente_discente_menu:A]#{ solicitacaoEnsinoIndividual.iniciarFerias }', 'form_menu_discente', null],
+[null, 'Visualizar Solicita&#231;&#245;es Enviadas', 'form_menu_discente_discente_menu:A]#{ solicitacaoEnsinoIndividual.listarFerias}', 'form_menu_discente', null],
+[null, 'Emitir Comprovante de Solicita&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{ solicitacaoEnsinoIndividual.emitirComprovanteFerias }', 'form_menu_discente', null]],
+[null, 'Trancamento de Matr&#237;cula', null, 'form_menu_discente', null,[null, 'Trancar', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.popularSolicitacao }', 'form_menu_discente', null],
+[null, 'Exibir Andamento do Trancamento', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.iniciarMeusTrancamentos }', 'form_menu_discente', null],
+_cmSplit,[null, 'Trancar Matr&#237;cula em Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.popularSolicitacaoSuplementar }', 'form_menu_discente', null],
+[null, 'Exibir Andamento do Trancamento em Per&#237;odo Suplementar', 'form_menu_discente_discente_menu:A]#{ trancamentoMatricula.iniciarMeusTrancamentosSuplementar }', 'form_menu_discente', null]],
+[null, 'Suspens&#227;o de Programa', null, 'form_menu_discente', null,,
+[null, 'Suspens&#227;o Regular', 'form_menu_discente_discente_menu:A]#{ trancamentoPrograma.iniciarTrancamentoRegular }', 'form_menu_discente', null],
+[null, 'Solicitar Suspens&#227;o a Posteriori', 'form_menu_discente_discente_menu:A]#{ trancamentoPrograma.iniciarTrancamentoPosteriori }', 'form_menu_discente', null],
+[null, 'Exibir Solicita&#231;&#245;es de Suspens&#227;o', 'form_menu_discente_discente_menu:A]#{ trancamentoPrograma.exibirMinhasSolicitacoes }', 'form_menu_discente', null]],
+[null, 'Confirma&#231;&#227;o de V&#237;nculo de Ingressante', 'form_menu_discente_discente_menu:A]#{ validacaoVinculo.iniciarAutoconfirmacao  }', 'form_menu_discente', null],
+[null, 'Acompanhar Procedimentos ap&#243;s Defesa de TCC', 'form_menu_discente_discente_menu:A]#{ acompanhamentoProcedimentosAposDefesaGraduacaoMBean.iniciarSelecaoComponente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Registro de Atividades Curriculares Complementares', 'form_menu_discente_discente_menu:A]#{ solicitacaoRegistroAtividadeAutonomaMBean.listar }', 'form_menu_discente', null],
+_cmSplit,[null, 'Produ&#231;&#245;es Acad&#234;micas', null, 'form_menu_discente', null,,
+['<img src="/sigaa/img/graduacao/coordenador/documento.png"/>', 'Termo de Autoriza&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ termoAutorizacaoPublicacaoMBean.iniciarEmissaoDiscente }', 'form_menu_discente', null]],
+[null, 'Consultar Turmas do Pr&#243;x. Semestre', 'form_menu_discente_discente_menu:A]#{ solicitacaoTurma.iniciarListaSolicitacoesCursoPortalDiscente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Atividades de Campo', 'form_menu_discente_discente_menu:A]#{ inscricaoAtividadeCampo.iniciarInscricao }', 'form_menu_discente', null],
+_cmSplit,[null, 'Calend&#225;rio Acad&#234;mico', 'form_menu_discente_discente_menu:A]#{calendario.iniciarBusca}', 'form_menu_discente', null],
+[null, 'Consultas Gerais', null, 'form_menu_discente', null,[null, 'Consultar Curso', 'form_menu_discente_discente_menu:A]#{ curso.popularBuscaGeral }', 'form_menu_discente', null],
+[null, 'Consultar Componente Curricular', 'form_menu_discente_discente_menu:A]#{ componenteCurricular.popularBuscaDiscente }', 'form_menu_discente', null],
+[null, 'Consultar Estrutura Curricular', 'form_menu_discente_discente_menu:A]#{ curriculo.popularBuscaGeral }', 'form_menu_discente', null],
+[null, 'Consultar Turma', 'form_menu_discente_discente_menu:A]#{ buscaTurmaBean.popularBuscaGeral }', 'form_menu_discente', null],
+[null, 'Consultar Unidades Acad&#234;micas', 'form_menu_discente_discente_menu:A]#{ unidade.popularBuscaGeral }', 'form_menu_discente', null]]],
+['<img src="/sigaa/img/icones/pesquisa_menu.gif"/>', 'Pesquisa', null, 'form_menu_discente', null,[null, 'Projeto de Pesquisa', null, 'form_menu_discente', null,[null, 'Consultar Projetos', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/projetoPesquisa/buscarProjetos.do?dispatch=consulta&popular=true&consulta=true', 'form_menu_discente', null],
+[null, 'Projetos que Participo', 'form_menu_discente_discente_menu:A]#{membroProjeto.listarMeusProjetoPesquisa}', 'form_menu_discente', null]],
+_cmSplit,[null, 'Plano de Trabalho', null, 'form_menu_discente', null,[null, 'Meus Planos de Trabalho', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/sigaa/pesquisa/planoTrabalho/wizard.do?dispatch=listarPorDiscente', 'form_menu_discente', null]],
+[null, 'Relat&#243;rios de Inicia&#231;&#227;o Cient&#237;fica', null, 'form_menu_discente', null,[null, 'Relat&#243;rios Parciais', null, 'form_menu_discente', null,[null, 'Enviar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaParcial.do?dispatch=listarPlanos', 'form_menu_discente', null],
+[null, 'Consultar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaParcial.do?dispatch=listarRelatorios', 'form_menu_discente', null]],
+[null, 'Relat&#243;rios Finais', null, 'form_menu_discente', null,[null, 'Enviar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaFinal.do?dispatch=listarPlanos', 'form_menu_discente', null],
+[null, 'Consultar', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/relatorioBolsaFinal.do?dispatch=listarRelatorios', 'form_menu_discente', null]]],
+[null, 'Certificados e Declara&#231;&#245;es', null, 'form_menu_discente', null,[null, 'Inicia&#231;&#227;o Cient&#237;fica', 'form_menu_discente_discente_menu:A]#{declaracoesPesquisa.listarDeclararoesPlanoTrabalhoBolsista}', 'form_menu_discente', null]],
+[null, 'Congresso de Inicia&#231;&#227;o Cient&#237;fica', null, 'form_menu_discente', null,[null, 'Submeter Trabalho Completo', 'form_menu_discente_discente_menu:A]#{resumoCongressoMBean.iniciarListagem}', 'form_menu_discente', null],
+[null, 'Meus Trabalhos', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/pesquisa/resumoCongresso.do?dispatch=listarResumosAutor', 'form_menu_discente', null],
+[null, 'Certificados', 'form_menu_discente_discente_menu:A]#{certificadoCIC.listarCertificadosUsuario}', 'form_menu_discente', null],
+_cmSplit,[null, 'Baixar Modelo do Trabalho', 'form_menu_discente_discente_menu:A]#{ congressoIniciacaoCientifica.baixarModeloTrabalho }', 'form_menu_discente', null],
+_cmSplit,[null, 'Justificar Aus&#234;ncia - Autor', 'form_menu_discente_discente_menu:A]#{justificativaAusenciaDiscenteCICTMbean.preCadastrarJustificativaAutor}', 'form_menu_discente', null]]],
+['<img src="/sigaa/img/icones/extensao_menu.gif"/>', 'Extens&#227;o', null, 'form_menu_discente', null,[null, 'Consultar A&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{atividadeExtensao.preLocalizar}', 'form_menu_discente', null],
+_cmSplit,[null, 'Meus Planos de Trabalho', 'form_menu_discente_discente_menu:A]#{ planoTrabalhoExtensao.carregarPlanosTrabalhoDiscenteLogado }', 'form_menu_discente', null],
+[null, 'Minhas A&#231;&#245;es como Membro da Equipe', 'form_menu_discente_discente_menu:A]#{ atividadeExtensao.carregarAcoesDiscenteLogado }', 'form_menu_discente', null],
+[null, 'Meus Relat&#243;rios', 'form_menu_discente_discente_menu:A]#{ relatorioBolsistaExtensao.iniciarCadastroRelatorio }', 'form_menu_discente', null],
+[null, 'Certificados e Declara&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{documentosAutenticadosExtensao.participacoesDiscenteUsuarioLogado}', 'form_menu_discente', null],
+[null, 'Inscri&#231;&#227;o On-line em A&#231;&#245;es de Extens&#227;o', 'form_menu_discente_discente_menu:A]#{inscricaoParticipanteAtividadeMBean.iniciaInscricaoCursosEEventosAbertos}', 'form_menu_discente', null],
+[null, 'Visualizar Resultados das Inscri&#231;&#245;es', 'form_menu_discente_discente_menu:A]#{selecaoDiscenteExtensao.iniciarVisualizarResultados}', 'form_menu_discente', null]],
+['<img src="/sigaa/img/icones/monitoria_menu.gif"/>', 'Monitoria', null, 'form_menu_discente', null,[null, 'Consultar Projetos', 'form_menu_discente_discente_menu:A]#{coordMonitoria.situacaoProjeto}', 'form_menu_discente', null],
+_cmSplit,[null, 'Meus Projetos de Monitoria', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/monitoria/DiscenteMonitoria/meus_projetos.jsf', 'form_menu_discente', null],
+[null, 'Meus Relat&#243;rios', 'form_menu_discente_discente_menu:A]#{ relatorioMonitor.listar }', 'form_menu_discente', null],
+[null, 'Meus Certificados', null, 'form_menu_discente', null,[null, 'Certificados de Projetos', 'form_menu_discente_discente_menu:A]#{documentosAutenticadosMonitoria.participacoesDiscenteUsuarioLogado}', 'form_menu_discente', null],
+[null, 'Certificados do SID', 'form_menu_discente_discente_menu:A]#{resumoSid.listarParticipacoesDiscente}', 'form_menu_discente', null]],
+[null, 'Inscrever-se em Sele&#231;&#227;o de Monitoria', 'form_menu_discente_discente_menu:A]#{agregadorBolsas.iniciarBuscar}', 'form_menu_discente', null],
+[null, 'Visualizar Resultado da Sele&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{discenteMonitoria.popularVisualizarResultados}', 'form_menu_discente', null]],
+['<img src="/sigaa/img/projetos/associado_menu.png"/>', 'A&#231;&#245;es Associadas', null, 'form_menu_discente', null,[null, 'Consultar A&#231;&#245;es Associadas', 'form_menu_discente_discente_menu:A]#{ buscaAcaoAssociada.iniciar }', 'form_menu_discente', null],
+_cmSplit,[null, 'Meus Planos de Trabalho', 'form_menu_discente_discente_menu:A]#{ planoTrabalhoProjeto.planosDiscente }', 'form_menu_discente', null],
+_cmSplit,[null, 'Certificados e Declarac&#245;es', 'form_menu_discente_discente_menu:A]#{ declaracaoMembroProjIntegradoMBean.participacoesDiscenteUsuarioLogado }', 'form_menu_discente', null]],
+['<img src="/sigaa/img/bolsas.png"/>', 'Bolsas', null, 'form_menu_discente', null,[null, 'Cadastro &#218;nico', null, 'form_menu_discente', null,[null, 'Aderir', 'form_menu_discente_discente_menu:A]#{ adesaoCadastroUnico.apresentacaoCadastroUnico }', 'form_menu_discente', null],
+[null, 'Consultar Ades&#245;es', 'form_menu_discente_discente_menu:A]#{ adesaoCadastroUnico.listarCadastroUnico }', 'form_menu_discente', null],
+[null, 'Declara&#231;&#227;o de Discente Priorit&#225;rio', 'form_menu_discente_discente_menu:A]#{ declaracaoDiscentePrioritarioMBean.emitirDeclaracaoDiscentePrioritario }', 'form_menu_discente', null]],
+[null, 'Declara&#231;&#227;o de Bolsista', null, 'form_menu_discente', null,[null, 'Assinar Declara&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ declaracaoNaoAcumuloBolsas.iniciarDeclaracao }', 'form_menu_discente', null],
+[null, 'Visualizar Assinaturas', 'form_menu_discente_discente_menu:A]#{ declaracaoNaoAcumuloBolsas.iniciarListaAssinaturas }', 'form_menu_discente', null]],
+_cmSplit,[null, 'Oportunidades de Bolsa', 'form_menu_discente_discente_menu:A]#{ agregadorBolsas.iniciarBuscar }', 'form_menu_discente', null],
+[null, 'Acompanhar Meus Registros de Interesse', 'form_menu_discente_discente_menu:A]#{interessadoBolsa.acompanharInscricoes}', 'form_menu_discente', null],
+[null, 'Minhas Bolsas na Institui&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ relatorioBolsasDiscenteBean.listarBolsasInstituicao }', 'form_menu_discente', null],
+[null, 'Solicita&#231;&#227;o de Bolsas', null, 'form_menu_discente', null,[null, 'Solicita&#231;&#227;o de Bolsa Aux&#237;lio', 'form_menu_discente_discente_menu:A]#{ bolsaAuxilioMBean.iniciarSolicitacaoBolsaAuxilio }', 'form_menu_discente', null],
+[null, 'Solicitar Desbloqueio de Acesso ao RU', 'form_menu_discente_discente_menu:A]#{ desbloqueioAcessoRUMBean.iniciarSolicitacaoDiscente }', 'form_menu_discente', null],
+[null, 'Acompanhar Solicita&#231;&#227;o de Bolsa Aux&#237;lio', 'form_menu_discente_discente_menu:A]#{ bolsaAuxilioMBean.acompanharSituacaoBolsaAuxilio }', 'form_menu_discente', null],
+[null, 'Acompanhar Solicita&#231;&#227;o de Desbloqueio do RU', 'form_menu_discente_discente_menu:A]#{ desbloqueioAcessoRUMBean.listarSolicitacoesDiscente }', 'form_menu_discente', null],
+[null, 'Renovar Bolsa Aux&#237;lio', 'form_menu_discente_discente_menu:A]#{ renovacaoBolsaAuxilioMBean.preCadastrar }', 'form_menu_discente', null]]],
+['<img src="/sigaa/img/estagio/estagio_menu.png"/>', 'Est&#225;gio', null, 'form_menu_discente', null,[null, 'Mural de Vagas', 'form_menu_discente_discente_menu:A]#{ ofertaEstagioMBean.listarOfertasDisponiveis }', 'form_menu_discente', null],
+_cmSplit,[null, 'Pr&#233;-cadastro de Est&#225;gio', 'form_menu_discente_discente_menu:A]#{estagioMBean.iniciarPreCadastro}', 'form_menu_discente', null],
+[null, 'Gerenciar Est&#225;gios', 'form_menu_discente_discente_menu:A]#{buscaEstagioMBean.iniciar}', 'form_menu_discente', null]],
+['<img src="/sigaa/img/relacoes_internacionais/mobilidade.png"/>', 'Rela&#231;&#245;es Internacionais', null, 'form_menu_discente', null,[null, 'Mobilidade', null, 'form_menu_discente', null,[null, 'Editais de Mobilidade', null, 'form_menu_discente', null,[null, 'Realizar Inscri&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{inscricaoMobilidadeMBean.iniciaInscricao}', 'form_menu_discente', null],
+[null, 'Visualizar Inscri&#231;&#227;o/Processo de Mobilidade', 'form_menu_discente_discente_menu:A]#{inscricaoMobilidadeMBean.listaInscricoes}', 'form_menu_discente', null]]]],
+['<img src="/sigaa/img/menu/outros.png"/>', 'Outros', null, 'form_menu_discente', null,['<img src="/sigaa/img/icones/amb_virt.png"/>', 'Ambientes Virtuais', null, 'form_menu_discente', null,[null, 'Comunidades Virtuais', null, 'form_menu_discente', null,[null, 'Buscar Comunidades Virtuais', 'form_menu_discente_discente_menu:L]#{ buscarComunidadeVirtualMBean.criar };0', 'form_menu_discente', null],
+[null, 'Minhas Comunidades', 'form_menu_discente_discente_menu:A]#{ buscarComunidadeVirtualMBean.exibirTodasComunidadesDocente }', 'form_menu_discente', null]]],
+[null, 'Avisar Aus&#234;ncia do Professor', 'form_menu_discente_discente_menu:A]#{ avisoFalta.iniciar }', 'form_menu_discente', null],
+[null, 'Validar E-mail', 'form_menu_discente_discente_menu:A]#{ registroValidacaoEmailDiscenteMBean.entrarRegistroValidacaoEmail }', 'form_menu_discente', null],
+[null, 'Coordena&#231;&#227;o de Curso', null, 'form_menu_discente', null,[null, 'Atendimento ao Aluno', 'form_menu_discente_discente_menu:A]#{ atendimentoAluno.novaPergunta }', 'form_menu_discente', null],
+[null, 'F&#243;rum de Cursos', 'form_menu_discente_discente_menu:A]#{ forum.listarForunsCurso }', 'form_menu_discente', null],
+[null, 'P&#225;gina do Curso', 'form_menu_discente_discente_menu:A]https://sigs.ufrpe.br/sigaa/public/curso/portal.jsf?id=28230822&lc=pt_BR', 'form_menu_discente', null]],
+[null, 'defici&#234;ncia', null, 'form_menu_discente', null,[null, 'Solicitar Apoio &#224; CAENE', 'form_menu_discente_discente_menu:A]#{ solicitacaoApoioNee.visualizaApresentacao }', 'form_menu_discente', null],
+['<img src="/sigaa/img/email_go.png"/>', 'Entrar em Contato', 'form_menu_discente_discente_menu:A]#{ solicitacaoApoioNee.initEntrarContatoCaene}', 'form_menu_discente', null]],
+[null, 'Produ&#231;&#245;es Intelectuais', null, 'form_menu_discente', null,[null, 'Acervo dos Docentes', 'form_menu_discente_discente_menu:A]#{acervoProducao.verAcervoDigital}', 'form_menu_discente', null],
+[null, 'Consultar Defesas de P&#243;s-gradua&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{consultarDefesaMBean.iniciar}', 'form_menu_discente', null]],
+[null, 'Aux&#237;lio Financeiro/Assinatura de Documentos no SIPAC', 'form_menu_discente_discente_menu:L]#{ menuDiscente.redirecionar };/entrarSistema.do?sistema=sipac&vinculoDiscente=true&url=portal_aluno/index.jsf?voltar=/sigaa/verPortalDiscente', 'form_menu_discente', null],
+[null, 'Psicologia', null, 'form_menu_discente', null,[null, 'Inscri&#231;&#245;es para Atividades em Grupo', 'form_menu_discente_discente_menu:A]#{ requisicaoAtendimentoPsicologiaMBean.inicio }', 'form_menu_discente', null],
+[null, 'Confirmar Presen&#231;a em Entrevista', 'form_menu_discente_discente_menu:A]#{ confirmarEntrevista.iniciar }', 'form_menu_discente', null]],
+[null, 'Atendimento M&#233;dico/Odontol&#243;gico', null, 'form_menu_discente', null,[null, 'Solicitar Atendimento M&#233;dico/Odontol&#243;gico', 'form_menu_discente_discente_menu:A]#{ solicitacaoAtendimentoMBean.preCadastrar }', 'form_menu_discente', null],
+[null, 'Acompanhar Solicita&#231;&#227;o', 'form_menu_discente_discente_menu:A]#{ solicitacaoAtendimentoMBean.listaSolicitacoes }', 'form_menu_discente', null]],
+[null, 'Relat&#243;rio de Carga Hor&#225;ria Docente', 'form_menu_discente_discente_menu:A]#{relatorioExtratorCargaHorariaMBean.iniciarRelatorioAnaliticoPublico}', 'form_menu_discente', null],
+_cmSplit,['<img src="/sigaa/img/celular_icone.gif"/>', 'Criar senha de acesso por Celular', 'form_menu_discente_discente_menu:A]#{ senhaMobileMBean.iniciar }', 'form_menu_discente', null],
+[null, 'Consultar Processos do Aluno', 'form_menu_discente_discente_menu:A]#{ consultaProcesso.iniciar }', 'form_menu_discente', null],
+['<img src="/sigaa/img/projeto/orcamento.png"/>', 'Compra de Cr&#233;ditos', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/entrarSistema.do?sistema=sipac&vinculoDiscente=true&url=restaurante/vendas/compra_credito.jsf?voltar=/sigaa/verPortalDiscente', 'form_menu_discente', null],
+['<img src="/sigaa/img/icones/restaurante_small.gif"/>', 'Saldo do Cart&#227;o do Restaurante', 'form_menu_discente_discente_menu:L]#{menuDiscente.redirecionar};/entrarSistema.do?sistema=sipac&vinculoDiscente=true&url=restaurante/vendas/saldo_cartao.jsf?voltar=/sigaa/verPortalDiscente', 'form_menu_discente', null],
+[null, 'Mes&#225;rio Volunt&#225;rio', 'form_menu_discente_discente_menu:A]#{ mesarioVoluntarioMBean.iniciar }', 'form_menu_discente', null],
+[null, 'Dossi&#234; Eletr&#244;nico do Aluno', 'form_menu_discente_discente_menu:A]#{ documentosDiscenteMBean.selecionaDiscente }', 'form_menu_discente', null]]];</script><div id="form_menu_discente_discente_menu"></div>
+<script type="text/javascript">	if(window.cmDraw!=undefined) { cmDraw ('form_menu_discente_discente_menu', form_menu_discente_discente_menu, 'hbr', cmThemeOffice, 'ThemeOffice');}</script><input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="j_id54"/>
+</form>
+
+</div>
+</div>
+<script>
+function redirectManual(){
+	return window.open("https://sistema.ouvidorias.gov.br/publico/Manifestacao/RegistrarManifestacao.aspx?ReturnUrl=%2f","_blank");
+}
+</script>
+
+
+
+	<h2><a href="/sigaa/verPortalDiscente.do">Portal do Discente</a> &gt; Consulta geral de componentes curriculares</h2>
+	<br/>
+
+	
+<form id="formBusca" name="formBusca" method="post" action="/sigaa/geral/componente_curricular/busca_geral.jsf" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="formBusca" value="formBusca"/>
+
+		<table class="formulario" width="90%">
+			<caption>Informe os Critérios de Consulta</caption>
+			<tbody>
+				<tr>
+					<td width="3%"> <input id="formBusca:checkNivel" type="checkbox" name="formBusca:checkNivel" checked="checked" class="noborder"/> </td>
+					<td width="20%"> <label for="checkNivel" onclick="$(&#39;formBusca:checkNivel&#39;).checked = !$(&#39;formBusca:checkNivel&#39;).checked;">Nível:</label></td>
+					<td>
+						<select name="formBusca:j_id_jsp_1111842163_1012" size="1" onchange="$(&#39;formBusca:checkNivel&#39;).checked = true;">	<option value="I">INFANTIL</option>
+	<option value="U">FUNDAMENTAL</option>
+	<option value="M">MÉDIO</option>
+	<option value="T">TÉCNICO</option>
+	<option value="N">INTEGRADO</option>
+	<option value="F">FORMAÇÃO COMPLEMENTAR</option>
+	<option value="G" selected="selected">GRADUAÇÃO</option>
+	<option value="L">LATO SENSU - ESPECIALIZAÇÃO</option>
+	<option value="R">LATO SENSU - RESIDÊNCIA</option>
+	<option value="S">STRICTO SENSU</option>
+	<option value="E">MESTRADO</option>
+	<option value="D">DOUTORADO</option>
+</select>
+					</td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkCodigo" type="checkbox" name="formBusca:checkCodigo" class="noborder"/> </td>
+					<td><label for="checkCodigo" onclick="$(&#39;formBusca:checkCodigo&#39;).checked = !$(&#39;formBusca:checkCodigo&#39;).checked;">Código:</label></td>
+					<td><input type="text" name="formBusca:j_id_jsp_1111842163_1015" onfocus="$(&#39;formBusca:checkCodigo&#39;).checked = true;" onkeyup="CAPS(this)" size="10"/></td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkNome" type="checkbox" name="formBusca:checkNome" class="noborder"/> </td>
+					<td><label for="checkNome" onclick="$(&#39;formBusca:checkNome&#39;).checked = !$(&#39;formBusca:checkNome&#39;).checked;">Nome da disciplina:</label></td>
+					<td><input type="text" name="formBusca:j_id_jsp_1111842163_1017" onfocus="$(&#39;formBusca:checkNome&#39;).checked = true;" style="width: 95%"/></td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkPreRequisito" type="checkbox" name="formBusca:checkPreRequisito" class="noborder"/> </td>
+					<td><label for="checkPreRequisito" onclick="$(&#39;formBusca:checkPreRequisito&#39;).checked = !$(&#39;formBusca:checkPreRequisito&#39;).checked;">Pré-requisito:</label></td>
+					<td>
+						<input id="formBusca:form:idPreRequisito" type="hidden" name="formBusca:form:idPreRequisito"/><input id="formBusca:form:nomeDisciplinaPreRequisito" type="text" name="formBusca:form:nomeDisciplinaPreRequisito" value="" onfocus="$(&#39;formBusca:checkPreRequisito&#39;).checked = true;" onkeyup="CAPS(this)" size="80"/>
+
+						
+						
+							<script type="text/javascript">
+new AjaxJspTag.Autocomplete(
+"/sigaa/ajaxDisciplina", {
+indicator: "indicatorDisciplina1",
+source: "formBusca:form:nomeDisciplinaPreRequisito",
+target: "formBusca:form:idPreRequisito",
+minimumCharacters: "4",
+className: "autocomplete",
+parameters: "nivel= ,todosOsProgramas=true",
+parser: new ResponseXmlToHtmlListParser()
+});
+</script>
+
+
+
+							<span id="indicatorDisciplina1" style="display:none; ">
+							<img src="/sigaa/img/indicator.gif"/> </span>
+
+						
+					</td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkCoRequisito" type="checkbox" name="formBusca:checkCoRequisito" class="noborder"/> </td>
+					<td><label for="checkCoRequisito" onclick="$(&#39;formBusca:checkCoRequisito&#39;).checked = !$(&#39;formBusca:checkCoRequisito&#39;).checked;">Co-requisito:</label></td>
+					<td>
+						<input id="formBusca:form2:idCoRequisito" type="hidden" name="formBusca:form2:idCoRequisito"/><input id="formBusca:form2:nomeDisciplinaCoRequisito" type="text" name="formBusca:form2:nomeDisciplinaCoRequisito" value="" onfocus="$(&#39;formBusca:checkCoRequisito&#39;).checked = true;" onkeyup="CAPS(this)" size="80"/>
+						
+						
+							<script type="text/javascript">
+new AjaxJspTag.Autocomplete(
+"/sigaa/ajaxDisciplina", {
+indicator: "indicatorDisciplina2",
+source: "formBusca:form2:nomeDisciplinaCoRequisito",
+target: "formBusca:form2:idCoRequisito",
+minimumCharacters: "4",
+className: "autocomplete",
+parameters: "nivel= ,todosOsProgramas=true",
+parser: new ResponseXmlToHtmlListParser()
+});
+</script>
+
+
+
+							<span id="indicatorDisciplina2" style="display:none; ">
+							<img src="/sigaa/img/indicator.gif"/> </span>
+						
+					</td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkEquivalencia" type="checkbox" name="formBusca:checkEquivalencia" class="noborder" onclick="escolherPeriodoEquivalencia(this)"/> </td>
+					<td><label for="checkEquivalencia" onclick="$(&#39;formBusca:checkEquivalencia&#39;).checked = !$(&#39;formBusca:checkEquivalencia&#39;).checked;">Equivalência:</label></td>
+					<td>
+						<input id="formBusca:form3:idEquivalencia" type="hidden" name="formBusca:form3:idEquivalencia"/><input id="formBusca:form3:nomeDisciplinaEquivalencia" type="text" name="formBusca:form3:nomeDisciplinaEquivalencia" value="" onfocus="$(&#39;formBusca:checkEquivalencia&#39;).checked = true; $(&#39;linhaPeriodoEquivalencia&#39;).show() " onkeyup="CAPS(this)" size="80"/>
+						
+						
+							<script type="text/javascript">
+new AjaxJspTag.Autocomplete(
+"/sigaa/ajaxDisciplina", {
+indicator: "indicatorDisciplina3",
+source: "formBusca:form3:nomeDisciplinaEquivalencia",
+target: "formBusca:form3:idEquivalencia",
+minimumCharacters: "4",
+className: "autocomplete",
+parameters: "nivel= ,todosOsProgramas=true",
+parser: new ResponseXmlToHtmlListParser()
+});
+</script>
+
+
+
+							<span id="indicatorDisciplina3" style="display:none; ">
+							<img src="/sigaa/img/indicator.gif"/> </span>
+						
+					</td>
+				</tr>
+
+				<tr id="linhaPeriodoEquivalencia">
+					<td><input id="formBusca:checkPeriodoEquivalencia" type="checkbox" name="formBusca:checkPeriodoEquivalencia" class="noborder"/> </td>
+					<td><label for="checkPeriodoEquivalencia" onclick="$(&#39;formBusca:checkPeriodoEquivalencia&#39;).checked = !$(&#39;formBusca:checkPeriodoEquivalencia&#39;).checked;">Período de equivalência:</label></td>
+					<td>
+						<label>Data inicial:</label>
+
+						<input id="formBusca:Data_Inicial" name="formBusca:Data_Inicial" type="text" maxlength="10" size="10" onkeypress="$(&#39;formBusca:checkPeriodoEquivalencia&#39;).checked = true; return(formataData(this,event))" onchange="$(&#39;formBusca:checkPeriodoEquivalencia&#39;).checked = true;" onfocus="selectText(&#39;null&#39;, &#39;formBusca:Data_Inicial&#39;)" onclick="selectText(&#39;null&#39;, &#39;formBusca:Data_Inicial&#39;)"/><span id="formBusca:Data_InicialSpan"></span><script type="text/javascript">formBusca_3AData_5FInicialCalendarVar=new org_apache_myfaces_PopupCalendar();
+formBusca_3AData_5FInicialCalendarVar.initData.imgDir = "\/sigaa\/faces\/myFacesExtensionResource\/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader\/17751649\/calendar.HtmlCalendarRenderer\/DB\/";
+formBusca_3AData_5FInicialCalendarVar.initData.monthName = new Array("Janeiro","Fevereiro","Mar\u00E7o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro");
+formBusca_3AData_5FInicialCalendarVar.initData.dayName = new Array("Dom","Seg","Ter","Qua","Qui","Sex","S\u00E1b");
+formBusca_3AData_5FInicialCalendarVar.initData.startAt = 0;
+formBusca_3AData_5FInicialCalendarVar.dateFormatSymbols.weekdays = new Array("Domingo","Segunda-feira","Ter\u00E7a-feira","Quarta-feira","Quinta-feira","Sexta-feira","S\u00E1bado");
+formBusca_3AData_5FInicialCalendarVar.dateFormatSymbols.shortWeekdays = new Array("Dom","Seg","Ter","Qua","Qui","Sex","S\u00E1b");
+formBusca_3AData_5FInicialCalendarVar.dateFormatSymbols.shortMonths = new Array("Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez");
+formBusca_3AData_5FInicialCalendarVar.dateFormatSymbols.months = new Array("Janeiro","Fevereiro","Mar\u00E7o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro");
+formBusca_3AData_5FInicialCalendarVar.dateFormatSymbols.eras = new Array("BC","AD");
+formBusca_3AData_5FInicialCalendarVar.dateFormatSymbols.ampms = new Array("AM","PM");
+formBusca_3AData_5FInicialCalendarVar.initData.todayString = "Hoje \u00E9";
+formBusca_3AData_5FInicialCalendarVar.initData.todayDateFormat = "dd\/MM\/yyyy";
+formBusca_3AData_5FInicialCalendarVar.initData.popupLeft = false;
+
+formBusca_3AData_5FInicialCalendarVar.init(document.getElementById('formBusca:Data_InicialSpan'));
+</script><img src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/calendar.HtmlCalendarRenderer/images/calendar.gif" style="vertical-align:bottom;" onclick="formBusca_3AData_5FInicialCalendarVar._popUpCalendar(this,document.getElementById(&#39;formBusca:Data_Inicial&#39;),&#39;dd/MM/yyyy&#39;)"/>
+
+						<label style="margin-left:20px;">Data final:</label>
+
+						<input id="formBusca:dataFim" name="formBusca:dataFim" type="text" maxlength="10" size="10" onkeypress="$(&#39;formBusca:checkPeriodoEquivalencia&#39;).checked = true;return(formataData(this,event));" onchange="$(&#39;formBusca:checkPeriodoEquivalencia&#39;).checked = true;" onfocus="selectText(&#39;null&#39;, &#39;formBusca:dataFim&#39;)" onclick="selectText(&#39;null&#39;, &#39;formBusca:dataFim&#39;)"/><span id="formBusca:dataFimSpan"></span><script type="text/javascript">formBusca_3AdataFimCalendarVar=new org_apache_myfaces_PopupCalendar();
+formBusca_3AdataFimCalendarVar.initData.imgDir = "\/sigaa\/faces\/myFacesExtensionResource\/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader\/17751649\/calendar.HtmlCalendarRenderer\/DB\/";
+formBusca_3AdataFimCalendarVar.initData.monthName = new Array("Janeiro","Fevereiro","Mar\u00E7o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro");
+formBusca_3AdataFimCalendarVar.initData.dayName = new Array("Dom","Seg","Ter","Qua","Qui","Sex","S\u00E1b");
+formBusca_3AdataFimCalendarVar.initData.startAt = 0;
+formBusca_3AdataFimCalendarVar.dateFormatSymbols.weekdays = new Array("Domingo","Segunda-feira","Ter\u00E7a-feira","Quarta-feira","Quinta-feira","Sexta-feira","S\u00E1bado");
+formBusca_3AdataFimCalendarVar.dateFormatSymbols.shortWeekdays = new Array("Dom","Seg","Ter","Qua","Qui","Sex","S\u00E1b");
+formBusca_3AdataFimCalendarVar.dateFormatSymbols.shortMonths = new Array("Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez");
+formBusca_3AdataFimCalendarVar.dateFormatSymbols.months = new Array("Janeiro","Fevereiro","Mar\u00E7o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro");
+formBusca_3AdataFimCalendarVar.dateFormatSymbols.eras = new Array("BC","AD");
+formBusca_3AdataFimCalendarVar.dateFormatSymbols.ampms = new Array("AM","PM");
+formBusca_3AdataFimCalendarVar.initData.todayString = "Hoje \u00E9";
+formBusca_3AdataFimCalendarVar.initData.todayDateFormat = "dd\/MM\/yyyy";
+formBusca_3AdataFimCalendarVar.initData.popupLeft = false;
+
+formBusca_3AdataFimCalendarVar.init(document.getElementById('formBusca:dataFimSpan'));
+</script><img src="/sigaa/faces/myFacesExtensionResource/org.apache.myfaces.renderkit.html.util.MyFacesResourceLoader/17751649/calendar.HtmlCalendarRenderer/images/calendar.gif" style="vertical-align:bottom;" onclick="formBusca_3AdataFimCalendarVar._popUpCalendar(this,document.getElementById(&#39;formBusca:dataFim&#39;),&#39;dd/MM/yyyy&#39;)"/>
+							<img src="/sigaa/img/ajuda.gif" onmouseover="document.getElementById(&#39;ajuda12360&#39;).style.visibility = &#39;visible&#39;;" onmouseout="document.getElementById(&#39;ajuda12360&#39;).style.visibility = &#39;hidden&#39;;" border="0"/>
+<span style="position: absolute;">
+	<div class="popUp" onmouseout="document.getElementById(&#39;ajuda12360&#39;).style.visibility = &#39;hidden&#39;;" id="ajuda12360">
+		
+Utilize o filtro por período de equivalência, para os casos de equivalências antigas ao registro atual do componente.	</div>
+</span>
+
+					</td>
+				</tr>
+
+				<tr>
+					<td><input id="formBusca:checkUnidade" type="checkbox" name="formBusca:checkUnidade" class="noborder"/> </td>
+					<td><label for="checkUnidade" onclick="$(&#39;formBusca:checkUnidade&#39;).checked = !$(&#39;formBusca:checkUnidade&#39;).checked;">Unidade responsável:</label></td>
+					<td><select id="formBusca:unidades" name="formBusca:unidades" size="1" onchange="$(&#39;formBusca:checkUnidade&#39;).checked = true;" style="width: 95%">	<option value="0" selected="selected">--&gt; SELECIONE &lt;--</option>
+	<option value="1361">COORD. PÓS-GRAD. DE INSTITUIÇÃO DE ENSINO EXTERNA - RECIFE - 11.01.29.17.43 (INATIVA)</option>
+	<option value="277">COORD. PÓS-GRAD. EM EXTENSÃO RURAL E DESENV. LOCAL - RECIFE - 11.01.29.03.14 (INATIVA)</option>
+	<option value="272">COORDENADORIA DOS CURSOS DE PÓS-GRADUAÇÃO LATO SENSU-PRPG - RECIFE - 11.01.29.07</option>
+	<option value="1018">COORDENADORIA DOS PROGRAMAS DE PÓS-GRADUAÇÃO STRITO SENSU EM CONSOLIDAÇÃO-PRPG - RECIFE - 11.01.29.17</option>
+	<option value="175">COORDENAÇÃO DO CURSO DE BACHARELADO AGRONOMIA - PREG - RECIFE - 11.01.30.06.02</option>
+	<option value="1152">COORDENAÇÃO DO CURSO DE BACHARELADO EM AGROECOLOGIA-PREG - RECIFE - 11.01.30.06.18</option>
+	<option value="551">COORDENAÇÃO DO CURSO DE BACHARELADO EM ENGENHARIA AMBIENTAL-PREG - RECIFE - 11.01.30.06.17</option>
+	<option value="1695">COORDENAÇÃO DO PROGRAMA DE RESIDÊNCIA PROFISSIONAL AGRÍCOLA EM PESCA E AQUICULTURA ( AQUIREDIDENCIA) - RECIFE - 11.01.29.07.20 (INATIVA)</option>
+	<option value="475">COORDENAÇÃO PÓS GRADUAÇÃO EM EDUCAÇÃO CULTURAS E IDENTIDADES-PRPG - RECIFE - 11.01.29.17.16</option>
+	<option value="1609">COORDENAÇÃO PÓS GRADUAÇÃO EM EDUCAÇÃO FÍSICA-PRPG - RECIFE - 11.01.29.17.45</option>
+	<option value="522">COORDENAÇÃO PÓS-GRADUAÇÃO EM  BIODIVERSIDADE E CONSERVAÇÃO-PRPG - SERRA TALHADA - 11.01.29.17.04</option>
+	<option value="266">COORDENAÇÃO PÓS-GRADUAÇÃO EM  FITOPATOLOGIA-PRPG - RECIFE - 11.01.29.03.08</option>
+	<option value="164">COORDENAÇÃO PÓS-GRADUAÇÃO EM ADMINISTRAÇÃO E DESENVOLVIMENTO-PRPG - RECIFE - 11.01.29.17.02</option>
+	<option value="520">COORDENAÇÃO PÓS-GRADUAÇÃO EM ADMINISTRAÇÃO PÚBLICA EM REDE NACIONAL-PRPG - RECIFE - 11.01.29.17.31</option>
+	<option value="1168">COORDENAÇÃO PÓS-GRADUAÇÃO EM AGROECOLOGIA E DESENVOLVIMENTO TERRITORIAL-PRPG - RECIFE - 11.01.29.17.34</option>
+	<option value="273">COORDENAÇÃO PÓS-GRADUAÇÃO EM AGRONOMIA MELHORAMENTO GENÉTICO DE PLANTAS-PRPG - RECIFE - 11.01.29.17.40</option>
+	<option value="389">COORDENAÇÃO PÓS-GRADUAÇÃO EM BIOCIÊNCIA ANIMAL-PRPG - RECIFE - 11.01.29.03.19</option>
+	<option value="1362">COORDENAÇÃO PÓS-GRADUAÇÃO EM BIODIVERSIDADE-PRPG - RECIFE - 11.01.29.17.42</option>
+	<option value="169">COORDENAÇÃO PÓS-GRADUAÇÃO EM BIOMETRIA E ESTATÍSTICA APLICADA-PRPG - RECIFE - 11.01.29.17.05</option>
+	<option value="521">COORDENAÇÃO PÓS-GRADUAÇÃO EM BIOTECNOLOGIA RENORBIO-PRPG - RECIFE - 11.01.29.03.37</option>
+	<option value="167">COORDENAÇÃO PÓS-GRADUAÇÃO EM BOTÂNICA - PRPG - RECIFE - 11.01.29.17.06 (INATIVA)</option>
+	<option value="390">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIA ANIMAL E PASTAGENS-PRPG - RECIFE - 11.01.29.17.35</option>
+	<option value="474">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIA ANIMAL TROPICAL-PRPPG - RECIFE - 11.01.29.17.08 (INATIVA)</option>
+	<option value="165">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIA DO SOLO-PRPG - RECIFE - 11.01.29.03.46</option>
+	<option value="281">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIA E TECNOLOGIA DE ALIMENTOS-PRPG - RECIFE - 11.01.29.17.09</option>
+	<option value="548">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIAS AMBIENTAIS-PRPG - RECIFE - 11.01.29.17.10</option>
+	<option value="1659">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIAS DO MOVIMENTO-PRPG - RECIFE - 11.01.29.17.46</option>
+	<option value="274">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIAS FLORESTAIS-PRPG - RECIFE - 11.01.29.17.11</option>
+	<option value="1660">COORDENAÇÃO PÓS-GRADUAÇÃO EM CIÊNCIAS SOCIAIS-PRPG - RECIFE - 11.01.29.17.47</option>
+	<option value="476">COORDENAÇÃO PÓS-GRADUAÇÃO EM CONSUMO COTIDIANO E DESENVOLVIMENTO SOCIAL-PRPG - RECIFE - 11.01.29.17.13</option>
+	<option value="478">COORDENAÇÃO PÓS-GRADUAÇÃO EM CONTROLADORIA-PRPG - RECIFE - 11.01.29.17.14</option>
+	<option value="391">COORDENAÇÃO PÓS-GRADUAÇÃO EM DESENVOLVIMENTO E INOVAÇÃO TECNOLÓGICA EM MEDICAMENTOS-PRPG - RECIFE - 11.01.29.17.12</option>
+	<option value="393">COORDENAÇÃO PÓS-GRADUAÇÃO EM ECOLOGIA-PRPPG - RECIFE - 11.01.29.17.15 (INATIVA)</option>
+	<option value="278">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENGENHARIA AGRÍCOLA-PRPG - RECIFE - 11.01.29.03.47</option>
+	<option value="477">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENGENHARIA AMBIENTAL-PRPG - RECIFE - 11.01.29.17.17</option>
+	<option value="1661">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENGENHARIA DE SISTEMAS DE ENERGIA-PRPG - RECIFE - 11.01.29.17.48</option>
+	<option value="560">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENGENHARIA FÍSICA-PRPG - CABO DE SANTO AGOSTINHO - 11.01.29.17.18</option>
+	<option value="267">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENSINO DAS CIÊNCIAS-PRPG - CPPGSE - RECIFE - 11.01.29.17.37</option>
+	<option value="1741">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENSINO DE COMPUTAÇÃO-PRPG - RECIFE - 11.01.29.17.52</option>
+	<option value="523">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENSINO DE FÍSICA-PRPG - RECIFE - 11.01.29.17.30</option>
+	<option value="276">COORDENAÇÃO PÓS-GRADUAÇÃO EM ENTOMOLOGIA-PRPG - RECIFE - 11.01.29.03.13</option>
+	<option value="1022">COORDENAÇÃO PÓS-GRADUAÇÃO EM ESTUDOS DA LINGUAGEM-PRPG - RECIFE - 11.01.29.17.33</option>
+	<option value="392">COORDENAÇÃO PÓS-GRADUAÇÃO EM ETNOBIOLOGIA E CONSERVAÇÃO DA NATUREZA-PRPG - RECIFE - 11.01.29.03.22</option>
+	<option value="394">COORDENAÇÃO PÓS-GRADUAÇÃO EM FÍSICA APLICADA-PRPG - RECIFE - 11.01.29.17.19</option>
+	<option value="279">COORDENAÇÃO PÓS-GRADUAÇÃO EM HISTÓRIA-PRPG - RECIFE - 11.01.29.17.36</option>
+	<option value="395">COORDENAÇÃO PÓS-GRADUAÇÃO EM INFORMÁTICA APLICADA-PRPG - RECIFE - 11.01.29.17.21</option>
+	<option value="524">COORDENAÇÃO PÓS-GRADUAÇÃO EM LETRAS-PRPG - RECIFE - 11.01.29.17.32</option>
+	<option value="399">COORDENAÇÃO PÓS-GRADUAÇÃO EM MATEMÁTICA EM REDE NACIONAL-PRPG - RECIFE - 11.01.29.17.44</option>
+	<option value="166">COORDENAÇÃO PÓS-GRADUAÇÃO EM MEDICINA VETERINÁRIA-PRPG - RECIFE - 11.01.29.17.49</option>
+	<option value="1676">COORDENAÇÃO PÓS-GRADUAÇÃO EM POLÍTICAS PÚBLICAS E DESENVOLVIMENTO-PRPG - RECIFE - 11.01.29.17.51</option>
+	<option value="396">COORDENAÇÃO PÓS-GRADUAÇÃO EM PRODUÇÃO AGRÍCOLA-PRPG - RECIFE - 11.01.29.17.22</option>
+	<option value="397">COORDENAÇÃO PÓS-GRADUAÇÃO EM PRODUÇÃO VEGETAL-PRPG - SERRA TALHADA - 11.01.29.17.23</option>
+	<option value="526">COORDENAÇÃO PÓS-GRADUAÇÃO EM QUÍMICA EM REDE NACIONAL-PRPG - RECIFE - 11.01.29.17.38</option>
+	<option value="280">COORDENAÇÃO PÓS-GRADUAÇÃO EM QUÍMICA-PRPG - RECIFE - 11.01.29.17.24</option>
+	<option value="275">COORDENAÇÃO PÓS-GRADUAÇÃO EM RECURSOS PESQUEIROS E AQUICULTURA-PRPG - RECIFE - 11.01.29.03.12</option>
+	<option value="1359">COORDENAÇÃO PÓS-GRADUAÇÃO EM REDE NORDESTE DE ENSINO-PRPG - RECIFE - 11.01.29.17.41</option>
+	<option value="398">COORDENAÇÃO PÓS-GRADUAÇÃO EM SANIDADE E REPRODUÇÃO DE ANIMAIS DE PRODUÇÃO-PRPG - RECIFE - 11.01.29.17.39</option>
+	<option value="550">COORDENAÇÃO PÓS-GRADUAÇÃO EM SAÚDE ÚNICA-PRPG - RECIFE - 11.01.29.17.26</option>
+	<option value="400">COORDENAÇÃO PÓS-GRADUAÇÃO EM TECNOLOGIA E GESTÃO EM EDUCAÇÃO A DISTÂNCIA-PRPG - RECIFE - 11.01.29.17.27</option>
+	<option value="168">COORDENAÇÃO PÓS-GRADUAÇÃO EM ZOOTECNIA-PRPG - RECIFE - 11.01.29.17.50</option>
+	<option value="188">DEPARTAMENTO DE ADMINISTRAÇÃO-DADM - RECIFE - 11.01.31</option>
+	<option value="88">DEPARTAMENTO DE AGRONOMIA-DEPA - RECIFE - 11.01.04</option>
+	<option value="101">DEPARTAMENTO DE BIOLOGIA-DB - RECIFE - 11.01.07</option>
+	<option value="122">DEPARTAMENTO DE CIÊNCIA FLORESTAL-DCFL - RECIFE - 11.01.14</option>
+	<option value="98">DEPARTAMENTO DE CIÊNCIAS DO CONSUMO-DCC - RECIFE - 11.01.06</option>
+	<option value="194">DEPARTAMENTO DE CIÊNCIAS SOCIAIS-DECISO - RECIFE - 11.01.33</option>
+	<option value="530">DEPARTAMENTO DE COMPUTAÇÃO-DC - RECIFE - 11.01.60</option>
+	<option value="517">DEPARTAMENTO DE ECONOMIA-DECON - RECIFE - 11.01.58</option>
+	<option value="196">DEPARTAMENTO DE EDUCAÇÃO FÍSICA-DEFIS - RECIFE - 11.01.34</option>
+	<option value="110">DEPARTAMENTO DE EDUCAÇÃO-DED - RECIFE - 11.01.10</option>
+	<option value="514">DEPARTAMENTO DE ENGENHARIA AGRÍCOLA-DEAGRI - RECIFE - 11.01.57</option>
+	<option value="318">DEPARTAMENTO DE ESTATÍSTICA E INFORMÁTICA-DEINFO - RECIFE - 11.01.40</option>
+	<option value="321">DEPARTAMENTO DE FÍSICA-DF - RECIFE - 11.01.41</option>
+	<option value="191">DEPARTAMENTO DE HISTÓRIA-DEHIST - RECIFE - 11.01.32</option>
+	<option value="104">DEPARTAMENTO DE LETRAS-DL - RECIFE - 11.01.08</option>
+	<option value="315">DEPARTAMENTO DE MATEMÁTICA-DMAT - RECIFE - 11.01.39</option>
+	<option value="91">DEPARTAMENTO DE MEDICINA VETERINÁRIA-DMV - RECIFE - 11.01.05</option>
+	<option value="113">DEPARTAMENTO DE MORFOLOGIA E FISIOLOGIA ANIMAL-DMFA - RECIFE - 11.01.11</option>
+	<option value="313">DEPARTAMENTO DE PESCA E AQUICULTURA-DEPAQ - RECIFE - 11.01.38</option>
+	<option value="107">DEPARTAMENTO DE QUÍMICA-DQ - RECIFE - 11.01.09</option>
+	<option value="116">DEPARTAMENTO DE TECNOLOGIA RURAL-DTR - RECIFE - 11.01.12</option>
+	<option value="119">DEPARTAMENTO DE ZOOTECNIA-DZ - RECIFE - 11.01.13</option>
+	<option value="697">DIRETORIA GERAL E ACADÊMICA DA UNIDADE ACADÊMICA DE BELO JARDIM–UABJ - BELO JARDIM - 11.01.65</option>
+	<option value="334">DIRETORIA GERAL E ACADÊMICA DA UNIDADE ACADÊMICA DE SERRA TALHADA-UAST - SERRA TALHADA - 11.01.43</option>
+	<option value="198">DIRETORIA GERAL E ACADÊMICA UNIDADE ACADÊMICA DE EDUCAÇÃO A DISTÂNCIA E TECNOLOGIA-UAEADTEC - RECIFE - 11.01.35</option>
+	<option value="481">UNIDADE ACADÊMICA DO CABO DE SANTO AGOSTINHO – UACSA - RECIFE - 11.01.56 (INATIVA)</option>
+</select></td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkTipo" type="checkbox" name="formBusca:checkTipo" class="noborder"/> </td>
+					<td><label for="checkTipo" onclick="$(&#39;formBusca:checkTipo&#39;).checked = !$(&#39;formBusca:checkTipo&#39;).checked;">Tipo do componente:</label></td>
+					<td><select id="formBusca:tipos" name="formBusca:tipos" size="1" onchange="$(&#39;formBusca:checkTipo&#39;).checked = true;" style="width: 50%">	<option value="0" selected="selected">--&gt; SELECIONE &lt;--</option>
+	<option value="2">DISCIPLINA</option>
+	<option value="1">ATIVIDADE</option>
+	<option value="3">MÓDULO</option>
+	<option value="4">BLOCO</option>
+</select></td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkModalidade" type="checkbox" name="formBusca:checkModalidade" class="noborder"/> </td>
+					<td><label for="checkModalidade" onclick="$(&#39;formBusca:checkModalidade&#39;).checked = !$(&#39;formBusca:checkModalidade&#39;).checked;">Modalidade:</label></td>
+					<td><select id="formBusca:modalidades" name="formBusca:modalidades" size="1" onchange="$(&#39;formBusca:checkModalidade&#39;).checked = true;" style="width: 50%">	<option value="0" selected="selected">--&gt; SELECIONE &lt;--</option>
+	<option value="2">A Distância</option>
+	<option value="1">Presencial</option>
+</select></td>
+				</tr>
+				<tr>
+					<td><input id="formBusca:checkRel" type="checkbox" name="formBusca:checkRel" class="noborder"/> </td>
+					<td colspan="2"><label for="checkRel" onclick="$(&#39;formBusca:checkRel&#39;).checked = !$(&#39;formBusca:checkRel&#39;).checked;">Exibir resultado da consulta em formato de relatório</label></td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3"><input id="formBusca:btnBuscar" type="submit" name="formBusca:btnBuscar" value="Buscar" class="btn btn-primary"/><input id="formBusca:btnCancelar" type="submit" name="formBusca:btnCancelar" value="Cancelar" onclick="return confirm(&#39;Deseja cancelar a operação? Todos os dados digitados não salvos serão perdidos!&#39;);"/> </td>
+				</tr>
+			</tfoot>
+		</table>
+	<input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="j_id54"/>
+</form>
+	
+
+	<br/>
+
+	
+
+
+<script type="text/javascript">
+
+	function escolherPeriodoEquivalencia(e) {
+
+		if (e.checked) {
+			$('linhaPeriodoEquivalencia').show();
+		} else {
+			$('linhaPeriodoEquivalencia').hide();
+		}
+		$('formBusca:checkEquivalencia').focus();
+	}
+
+	escolherPeriodoEquivalencia($('formBusca:checkEquivalencia'));
+
+</script>
+
+
+
+
+	
+	
+		
+
+
+
+<div class="clear"> </div>
+
+</div> 
+	<br/>
+
+	
+	
+	<div style="width: 80%; text-align: center; margin: 0 auto;">
+		<a href="/sigaa/verPortalDiscente.do">Portal do Discente</a>
+	</div>
+	
+	
+
+	<div id="rodape">
+		<p>	SIGAA | Secretaria de Tecnologias Digitais (STD) - https://servicosdigitais.ufrpe.br/help | Copyright © 2006-2026 - UFRN - producao-jboss02.producao-jboss02
+		
+		 
+			 - <a onclick="javascript:versao();">v4.19.10-22</a>
+				
+		</p>
+	</div>
+
+
+</div>  
+
+<div id="painel-mensagem-envio"> </div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- MYFACES JAVASCRIPT -->
+
+
+
+
+ 
+	<script type="text/javascript" charset="UTF-8">
+		function versao(){
+			var msg='';
+			msg+='SIGAA 4.19.10-22,  publicado em: 02/04/2026 16:13\n\n';
+			msg+='Depend\u00eancias:\n';
+			msg+='Arquitetura 5.2.1\n';
+			msg+='Entidades Comuns 3.1.1\n';
+			msg+='Servicos Integrados 3.1.1\n';
+			msg+='SharedResources 3.1.0\n';
+			msg+='Servicos Remoto Biblioteca 1.0.3\n';
+			msg+='SIGAA Mobile Objects 1.0.0\n\n';
+			msg+='Copyright SINFO/UFRN';
+			alert(msg);
+		}	
+	</script>
+
+
+<script language="javascript">
+Relogio.init(25);
+</script>
+
+	
+
+</body></html>
