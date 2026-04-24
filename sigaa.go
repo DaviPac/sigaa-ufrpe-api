@@ -13,15 +13,17 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+const domain = "https://sigaa.ufpe.br"
+
 const (
-	URL_VIEW_LOGIN         = "https://sigs.ufrpe.br/sigaa/verTelaLogin.do"
-	URL_PORTAL_DISCENTE    = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
-	URL_FREQUENCIA         = "https://sigs.ufrpe.br/sigaa/ava/index.jsf"
+	URL_VIEW_LOGIN         = domain + "/sigaa/verTelaLogin.do"
+	URL_PORTAL_DISCENTE    = domain + "/sigaa/portais/discente/discente.jsf"
+	URL_FREQUENCIA         = domain + "/sigaa/ava/index.jsf"
 	USER_AGENT             = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-	URL_ATESTADO_MATRICULA = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
-	URL_CURRICULO          = "https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf"
-	URL_COMPONENTE         = "https://sigs.ufrpe.br/sigaa/graduacao/componente/lista.jsf"
-	URL_BUSCA_COMPONENTE   = "https://sigs.ufrpe.br/sigaa/geral/componente_curricular/busca_geral.jsf"
+	URL_ATESTADO_MATRICULA = domain + "/sigaa/portais/discente/discente.jsf"
+	URL_CURRICULO          = domain + "/sigaa/public/curso/curriculo.jsf"
+	URL_COMPONENTE         = domain + "/sigaa/graduacao/componente/lista.jsf"
+	URL_BUSCA_COMPONENTE   = domain + "/sigaa/geral/componente_curricular/busca_geral.jsf"
 )
 
 var (
@@ -38,7 +40,7 @@ func doSigaaRequest(method string, url string, jsessionid string, referer string
 	}
 
 	req.Header.Set("User-Agent", USER_AGENT)
-	req.Header.Set("Origin", "https://sigs.ufrpe.br")
+	req.Header.Set("Origin", domain)
 	if referer != "" {
 		req.Header.Set("Referer", referer)
 	}
@@ -279,7 +281,7 @@ func Login(username, password string) (string, error) {
 	if !exists {
 		return "", fmt.Errorf("não foi possível encontrar o formulário de login no HTML")
 	}
-	fullActionUrl := "https://sigs.ufrpe.br" + actionUrlPath
+	fullActionUrl := "https://sigaa.ufpe.br" + actionUrlPath
 
 	payload := url.Values{}
 	payload.Set("user.login", username)
@@ -351,8 +353,8 @@ func proceedFromAviso(docAviso *goquery.Document, jsessionid, refererAviso strin
 		return nil, jsessionid, fmt.Errorf("não foi possível encontrar a action do formulário de aviso")
 	}
 	// A URL de action é relativa. Ex: /sigaa/telaAvisoLogon.jsf
-	// Assumindo o domínio: https://sigs.ufrpe.br
-	fullActionUrl := "https://sigs.ufrpe.br" + actionPath
+	// Assumindo o domínio: https://sigaa.ufpe.br
+	fullActionUrl := "https://sigaa.ufpe.br" + actionPath
 
 	// 2. Extrair o nome dinâmico do botão "Continuar >>"
 	botaoContinuar := form.Find("input[type='submit'][value*='Continuar']").First()
@@ -721,7 +723,7 @@ func getPaginaCurriculo(jsessionid string) (*goquery.Document, string, string, e
 	}
 
 	cursoID := match[1]
-	cursoURL := fmt.Sprintf("https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=%s", cursoID)
+	cursoURL := fmt.Sprintf(domain + "/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=%s", cursoID)
 	doc, newJsessionid, err = doSigaaRequest("GET", cursoURL, newJsessionid, URL_PORTAL_DISCENTE, nil, "")
 	if err != nil {
 		fmt.Printf("Erro ao acessar página do currículo: %v\n", err)
