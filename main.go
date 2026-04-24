@@ -31,10 +31,6 @@ import (
 // @name Authorization
 // @description Use "Bearer {jsessionid}"
 func main() {
-	if err := InitDB(); err != nil {
-		log.Fatalf("Falha crítica ao iniciar o banco: %v", err)
-	}
-	defer DB.Close()
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://sigaa-lite-ufrpe.vercel.app", "https://conecta-ufrpe.vercel.app", "http://localhost:4200", "https://mozilla.github.io"},
@@ -71,23 +67,6 @@ func main() {
 	}
 
 	router.POST("/login", handleLogin)
-
-	classroomAPI := router.Group("/classroom")
-	{
-		// 1. Gera a URL para o aluno logar no Google
-		classroomAPI.GET("/auth-url", HandleGoogleAuthURL)
-
-		// 2. Rota de retorno do Google (salva o token no banco)
-		classroomAPI.GET("/callback", HandleGoogleCallback)
-
-		// 3. Busca turmas e atividades (Esperam JSON com {"matricula": "..."})
-		classroomAPI.POST("/courses", HandleListCourses)
-		classroomAPI.POST("/assignments", HandleListAssignments)
-		classroomAPI.POST("/announcements", HandleListAnnouncements)
-		classroomAPI.POST("/topics", HandleListTopics)
-		classroomAPI.POST("/materials", HandleListMaterials)
-		classroomAPI.POST("/submissions", HandleListSubmissions)
-	}
 
 	log.Println("🚀 Servidor rodando em http://localhost:8080")
 	router.Run(":8080")
