@@ -308,8 +308,8 @@ func Login(username, password string) (string, error) {
 
 	const selectorAviso = "input[type='submit'][value*='Continuar']"
 
-	counter := 5
-	if doc.Find(selectorAviso).Length() > 0 && counter < 5 {
+	counter := 0
+	for doc.Find(selectorAviso).Length() > 0 && counter < 5 {
 		counter++
 		fmt.Println("⚠️ AvisoLogon detectado. Simulação do clique 'Continuar >>'.")
 
