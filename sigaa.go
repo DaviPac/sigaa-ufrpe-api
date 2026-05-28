@@ -308,7 +308,9 @@ func Login(username, password string) (string, error) {
 
 	const selectorAviso = "input[type='submit'][value*='Continuar']"
 
-	if doc.Find(selectorAviso).Length() > 0 {
+	counter := 5
+	if doc.Find(selectorAviso).Length() > 0 && counter < 5 {
+		counter++
 		fmt.Println("⚠️ AvisoLogon detectado. Simulação do clique 'Continuar >>'.")
 
 		// A URL final alcançada após o POST de login será o referer
@@ -323,7 +325,8 @@ func Login(username, password string) (string, error) {
 		}
 
 		// Simular o clique para prosseguir
-		_, newNewJsessionid, err := proceedFromAviso(
+		var newNewJsessionid string
+		doc, newNewJsessionid, err = proceedFromAviso(
 			doc,
 			newJsessionid,
 			refererAviso,
