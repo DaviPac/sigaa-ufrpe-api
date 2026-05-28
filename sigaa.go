@@ -309,8 +309,9 @@ func Login(username, password string) (string, error) {
 	}
 
 	const selectorAviso = "input[type='submit'][value*='Continuar']"
-
-	if doc.Find(selectorAviso).Length() > 0 {
+	counter := 0
+	for doc.Find(selectorAviso).Length() > 0 && counter < 5 {
+		counter++
 		fmt.Println("⚠️ AvisoLogon detectado. Simulação do clique 'Continuar >>'.")
 
 		// A URL final alcançada após o POST de login será o referer
@@ -324,8 +325,10 @@ func Login(username, password string) (string, error) {
 			refererAviso = urlPtr.String() // Agora a chamada .String() é segura
 		}
 
+		var newNewJsessionid string
+
 		// Simular o clique para prosseguir
-		_, newNewJsessionid, err := proceedFromAviso(
+		doc, newNewJsessionid, err = proceedFromAviso(
 			doc,
 			newJsessionid,
 			refererAviso,
@@ -723,7 +726,7 @@ func getPaginaCurriculo(jsessionid string) (*goquery.Document, string, string, e
 	}
 
 	cursoID := match[1]
-	cursoURL := fmt.Sprintf(domain + "/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=%s", cursoID)
+	cursoURL := fmt.Sprintf(domain+"/sigaa/public/curso/curriculo.jsf?lc=pt_BR&id=%s", cursoID)
 	doc, newJsessionid, err = doSigaaRequest("GET", cursoURL, newJsessionid, URL_PORTAL_DISCENTE, nil, "")
 	if err != nil {
 		fmt.Printf("Erro ao acessar página do currículo: %v\n", err)
