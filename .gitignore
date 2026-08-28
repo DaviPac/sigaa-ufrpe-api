@@ -1,0 +1,17 @@
+# Binários compilados
+/server
+/server.exe
+*.exe
+*.test
+
+# Logs locais
+*.log
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Artefatos de IDE / SO
+.DS_Store
+.idea/
+.vscode/

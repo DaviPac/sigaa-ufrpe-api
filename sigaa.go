@@ -1,9 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -29,9 +29,18 @@ var (
 	reJSFId    = regexp.MustCompile(`'id'\s*:\s*'([^']+)'`)
 )
 
-func doSigaaRequest(method string, url string, jsessionid string, referer string, body io.Reader, contentType string) (*goquery.Document, string, error) {
-	client := &http.Client{}
+// extractJSESSIONID procura o cookie JSESSIONID na resposta. Se o SIGAA
+// não renovar o cookie nesta resposta, mantém o valor anterior.
+func extractJSESSIONID(resp *http.Response, current string) string {
+	for _, ck := range resp.Cookies() {
+		if ck.Name == "JSESSIONID" && ck.Value != "" {
+			return "JSESSIONID=" + ck.Value
+		}
+	}
+	return current
+}
 
+func doSigaaRequest(method string, url string, jsessionid string, referer string, body io.Reader, contentType string) (*goquery.Document, string, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, jsessionid, fmt.Errorf("erro ao criar requisição: %w", err)
@@ -49,21 +58,14 @@ func doSigaaRequest(method string, url string, jsessionid string, referer string
 		req.Header.Set("Cookie", jsessionid)
 	}
 
-	resp, err := client.Do(req)
+	resp, err := sigaaHTTPClient.Do(req)
 	if err != nil {
 		return nil, jsessionid, fmt.Errorf("erro ao fazer requisição para %s: %w", url, err)
 	}
-	fmt.Printf("URL: %v -- STATUS: %v\n", resp.Request.URL, resp.StatusCode)
 	defer resp.Body.Close()
+	log.Printf("SIGAA %s %s -> %d", method, resp.Request.URL, resp.StatusCode)
 
-	newJsessionid := jsessionid
-	cookieHeader := resp.Header.Get("Set-Cookie")
-	if cookieHeader != "" {
-		parts := strings.Split(cookieHeader, ";")
-		if len(parts) > 0 {
-			newJsessionid = parts[0]
-		}
-	}
+	newJsessionid := extractJSESSIONID(resp, jsessionid)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, newJsessionid, fmt.Errorf("status code inesperado %d para %s", resp.StatusCode, url)
@@ -74,12 +76,12 @@ func doSigaaRequest(method string, url string, jsessionid string, referer string
 		return nil, newJsessionid, fmt.Errorf("erro ao parsear HTML de %s: %w", url, err)
 	}
 
-	html, _ := doc.Html()
-	if strings.Contains(html, "rio e/ou senha inv") {
+	text := doc.Text()
+	if strings.Contains(text, "rio e/ou senha inv") {
 		return nil, newJsessionid, ErrInvalidCredentials
 	}
-	if strings.Contains(html, "foi expirada") {
-		return nil, newJsessionid, fmt.Errorf("sessão inválida ou expirada ao acessar %s", url)
+	if strings.Contains(text, "foi expirada") || strings.Contains(text, "sessão expirou") {
+		return nil, newJsessionid, fmt.Errorf("%w ao acessar %s", ErrSessaoExpirada, url)
 	}
 
 	return doc, newJsessionid, nil
@@ -93,28 +95,32 @@ func parseViewState(doc *goquery.Document, errorContext string) (string, error) 
 	return viewStateVal, nil
 }
 
-func FetchVinculoPDF(viewState string, jsessionid string) (*http.Response, error) {
+// fetchPortalPDF dispara uma ação do menu do portal do discente que
+// responde com um PDF (histórico, declaração de vínculo, etc.) e devolve
+// a resposta ainda aberta para o handler fazer streaming.
+//
+// jscookAction é a expressão EL do item de menu correspondente.
+func fetchPortalPDF(viewState, jsessionid, jscookAction string) (*http.Response, error) {
 	payload := url.Values{}
 	payload.Set("menu:form_menu_discente", "menu:form_menu_discente")
 	payload.Set("id", "107543")
-	payload.Set("jscook_action", "menu_form_menu_discente_discente_menu:A]#{ declaracaoVinculo.emitirDeclaracao }")
+	payload.Set("jscook_action", jscookAction)
 	payload.Set("javax.faces.ViewState", viewState)
 
-	client := &http.Client{}
 	req, err := http.NewRequest("POST", URL_PORTAL_DISCENTE, strings.NewReader(payload.Encode()))
 	if err != nil {
-		return nil, fmt.Errorf("erro ao criar requisição de vinculo: %w", err)
+		return nil, fmt.Errorf("erro ao criar requisição de PDF: %w", err)
 	}
-
-	// Adicionando os headers essenciais
 	req.Header.Set("User-Agent", USER_AGENT)
 	req.Header.Set("Referer", URL_PORTAL_DISCENTE)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Cookie", jsessionid)
+	if jsessionid != "" {
+		req.Header.Set("Cookie", jsessionid)
+	}
 
-	resp, err := client.Do(req)
+	resp, err := sigaaHTTPClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao solicitar vinculo ao SIGAA: %w", err)
+		return nil, fmt.Errorf("erro ao solicitar PDF ao SIGAA: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -122,56 +128,23 @@ func FetchVinculoPDF(viewState string, jsessionid string) (*http.Response, error
 		return nil, fmt.Errorf("status code inesperado: %d", resp.StatusCode)
 	}
 
-	// Verificação de segurança: checa se o SIGAA devolveu mesmo um PDF
-	// Se a sessão expirou, ele geralmente retorna um HTML (Content-Type: text/html)
+	// Se a sessão expirou o SIGAA responde com HTML em vez do PDF.
 	if !strings.Contains(resp.Header.Get("Content-Type"), "application/pdf") {
 		resp.Body.Close()
-		return nil, errors.New("a resposta não é um PDF. A sessão pode ter expirado ou o ViewState é inválido")
+		return nil, fmt.Errorf("%w: o SIGAA não retornou um PDF (ViewState inválido?)", ErrSessaoExpirada)
 	}
 
-	// Retornamos o response inteiro (sem fechar o Body) para que o Handler faça o stream
 	return resp, nil
 }
 
+func FetchVinculoPDF(viewState string, jsessionid string) (*http.Response, error) {
+	return fetchPortalPDF(viewState, jsessionid,
+		"menu_form_menu_discente_discente_menu:A]#{ declaracaoVinculo.emitirDeclaracao }")
+}
+
 func FetchHistoricoPDF(viewState string, jsessionid string) (*http.Response, error) {
-	payload := url.Values{}
-	payload.Set("menu:form_menu_discente", "menu:form_menu_discente")
-	// Lembre-se: verifique se esse ID '107543' funciona para todos os alunos ou se precisará ser dinâmico
-	payload.Set("id", "107543")
-	payload.Set("jscook_action", "menu_form_menu_discente_discente_menu:A]#{ portalDiscente.historico }")
-	payload.Set("javax.faces.ViewState", viewState)
-
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", URL_PORTAL_DISCENTE, strings.NewReader(payload.Encode()))
-	if err != nil {
-		return nil, fmt.Errorf("erro ao criar requisição do histórico: %w", err)
-	}
-
-	// Adicionando os headers essenciais
-	req.Header.Set("User-Agent", USER_AGENT)
-	req.Header.Set("Referer", URL_PORTAL_DISCENTE)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Cookie", jsessionid)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao solicitar histórico ao SIGAA: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
-		return nil, fmt.Errorf("status code inesperado: %d", resp.StatusCode)
-	}
-
-	// Verificação de segurança: checa se o SIGAA devolveu mesmo um PDF
-	// Se a sessão expirou, ele geralmente retorna um HTML (Content-Type: text/html)
-	if !strings.Contains(resp.Header.Get("Content-Type"), "application/pdf") {
-		resp.Body.Close()
-		return nil, errors.New("a resposta não é um PDF. A sessão pode ter expirado ou o ViewState é inválido")
-	}
-
-	// Retornamos o response inteiro (sem fechar o Body) para que o Handler faça o stream
-	return resp, nil
+	return fetchPortalPDF(viewState, jsessionid,
+		"menu_form_menu_discente_discente_menu:A]#{ portalDiscente.historico }")
 }
 
 func GetAtestadoMatricula(viewState string, jsessionid string) (string, string, error) {
@@ -415,6 +388,119 @@ func getPaginaPortal(jsessionid string) (*goquery.Document, string, string, erro
 	return doc, newJsessionid, viewState, nil
 }
 
+// --- Verificação de identidade da turma -----------------------------------
+//
+// O SIGAA é stateful: um POST "entrar na turma virtual" pode ser ignorado
+// silenciosamente se o ViewState estiver dessincronizado, e aí a página
+// devolvida ainda é a da turma anterior. Sem checar isso, o cronograma /
+// notícia / faltas de uma turma acabam sendo atribuídos a outra.
+
+var accentReplacer = strings.NewReplacer(
+	"Á", "A", "À", "A", "Â", "A", "Ã", "A", "Ä", "A",
+	"É", "E", "È", "E", "Ê", "E", "Ë", "E",
+	"Í", "I", "Ì", "I", "Î", "I", "Ï", "I",
+	"Ó", "O", "Ò", "O", "Ô", "O", "Õ", "O", "Ö", "O",
+	"Ú", "U", "Ù", "U", "Û", "U", "Ü", "U",
+	"Ç", "C", "Ñ", "N",
+)
+
+// normalizeName deixa o nome comparável: maiúsculas, sem acento e só com
+// tokens alfanuméricos separados por espaço simples.
+func normalizeName(s string) string {
+	s = accentReplacer.Replace(strings.ToUpper(s))
+	var b strings.Builder
+	lastSpace := true
+	for _, r := range s {
+		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
+			b.WriteRune(r)
+			lastSpace = false
+		} else if !lastSpace {
+			b.WriteByte(' ')
+			lastSpace = true
+		}
+	}
+	return strings.TrimSpace(b.String())
+}
+
+// turmaTitleSelectors: candidatos a "nome da turma atual" na Turma Virtual.
+var turmaTitleSelectors = []string{
+	"#linkNomeTurma",
+	".nomeTurma",
+	"#conteudo h2",
+	"#conteudo h3",
+	"#paginaInicial .titulo",
+	"div.turma-virtual-titulo",
+	"td.titulo",
+}
+
+// turmaTitleFromPage devolve o nome da turma atual e se ele veio de um
+// seletor específico da Turma Virtual (confiável) ou apenas do <title>
+// genérico da página (não confiável para reprovar, só para confirmar).
+func turmaTitleFromPage(doc *goquery.Document) (title string, trusted bool) {
+	for _, sel := range turmaTitleSelectors {
+		if txt := strings.TrimSpace(doc.Find(sel).First().Text()); txt != "" {
+			return txt, true
+		}
+	}
+	return strings.TrimSpace(doc.Find("title").First().Text()), false
+}
+
+// reCodigoDisciplina casa um código de disciplina (ex.: "EXAT0001" ou
+// "12345") dentro de um nome de turma, quando presente.
+var reCodigoDisciplina = regexp.MustCompile(`\b([A-Z]{2,}\d{3,}|\d{5,})\b`)
+
+// verifyTurmaPage confirma que o documento carregado pertence à turma
+// esperada. Retorna nil quando confirma OU quando não há como verificar
+// (nesse caso apenas registra um aviso, para não quebrar o fluxo à toa).
+func verifyTurmaPage(doc *goquery.Document, turma TurmaData) error {
+	pageTitle, trusted := turmaTitleFromPage(doc)
+	want := normalizeName(turma.Nome)
+	got := normalizeName(pageTitle)
+
+	if want == "" || got == "" {
+		log.Printf("aviso: identidade da turma não verificável (esperado %q, título da página %q)", turma.Nome, pageTitle)
+		return nil
+	}
+
+	if strings.Contains(got, want) || strings.Contains(want, got) {
+		return nil
+	}
+	if wc, gc := reCodigoDisciplina.FindString(want), reCodigoDisciplina.FindString(got); wc != "" && wc == gc {
+		return nil
+	}
+	if tokenOverlap(want, got) >= 0.6 {
+		return nil
+	}
+
+	if !trusted {
+		// Só temos o <title> genérico: não dá para afirmar que houve troca
+		// de turma. Registramos e seguimos.
+		log.Printf("aviso: não confirmei a identidade da turma %q (título genérico: %q)", turma.Nome, pageTitle)
+		return nil
+	}
+
+	return fmt.Errorf("página carregada não corresponde à turma esperada (esperado %q, veio %q)", turma.Nome, pageTitle)
+}
+
+func tokenOverlap(a, b string) float64 {
+	set := map[string]bool{}
+	for _, t := range strings.Fields(a) {
+		set[t] = true
+	}
+	if len(set) == 0 {
+		return 0
+	}
+	hits := 0
+	for _, t := range strings.Fields(b) {
+		if set[t] {
+			hits++
+			delete(set, t)
+		}
+	}
+	total := len(strings.Fields(a))
+	return float64(hits) / float64(total)
+}
+
 func parseTurmas(doc *goquery.Document) ([]TurmaData, []Avaliacao, error) {
 	turmasData := []TurmaData{}
 	reFrontEnd := regexp.MustCompile(`'frontEndIdTurma':'([^']+)'`)
@@ -450,8 +536,20 @@ func parseTurmas(doc *goquery.Document) ([]TurmaData, []Avaliacao, error) {
 			return
 		}
 
+		// Local e horário vêm da MESMA linha da turma. Associar por linha
+		// (em vez de por índice global de <center>) evita que o horário de
+		// uma turma vaze para outra quando o DOM não bate 1:1.
 		tr := el.Closest("tr")
 		local := strings.TrimSpace(tr.Find("td.info").First().Text())
+
+		var horarios []string
+		tr.Find("td[class*='info'] center").Each(func(_ int, center *goquery.Selection) {
+			for _, parte := range strings.Fields(center.Text()) {
+				if parte != "*" && parte != "" {
+					horarios = append(horarios, parte)
+				}
+			}
+		})
 
 		turmaInfo := TurmaInfo{
 			Nome:        nomeTurma,
@@ -459,20 +557,17 @@ func parseTurmas(doc *goquery.Document) ([]TurmaData, []Avaliacao, error) {
 			FormName:    formName,
 			ComponentId: componentId,
 		}
-		turmasData = append(turmasData, TurmaData{Nome: nomeTurma, Local: local, Faltas: FALTAS_INDEFINIDAS, Info: turmaInfo})
+		turmasData = append(turmasData, TurmaData{
+			Nome:     nomeTurma,
+			Local:    local,
+			Horarios: horarios,
+			Faltas:   FALTAS_INDEFINIDAS,
+			Info:     turmaInfo,
+		})
 	})
 	if parseError != nil {
 		return nil, nil, parseError
 	}
-
-	doc.Find("td[class*='info'] center").Each(func(i int, horario *goquery.Selection) {
-		partes := strings.FieldsSeq(horario.Text())
-		for parte := range partes {
-			if parte != "*" && parte != "" {
-				turmasData[i].Horarios = append(turmasData[i].Horarios, parte)
-			}
-		}
-	})
 
 	var avaliacoes []Avaliacao
 
@@ -1079,14 +1174,8 @@ func BaixarArquivoSigaa(jsessionid string, viewState string, chave string, fileI
 		req.Header.Set("Cookie", newJsessionid)
 	}
 
-	client := &http.Client{
-		// Impede o redirecionamento automático para pegarmos o erro 302 (expirada.jsp)
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	resp, err := client.Do(req)
+	// Cliente sem redirect automático para capturarmos o 302 (expirada.jsp).
+	resp, err := sigaaNoRedirectClient.Do(req)
 	if err != nil {
 		return nil, newJsessionid, newViewState, fmt.Errorf("erro ao executar requisição de download: %w", err)
 	}
@@ -1216,9 +1305,12 @@ func getPaginaTurma(turma TurmaData, jsessionid string, viewState string) (Notic
 		"application/x-www-form-urlencoded",
 	)
 	if err != nil {
-		var noticia Noticia
-		var cronograma []CronogramaItem
-		return noticia, cronograma, jsessionid, viewState, fmt.Errorf("erro ao acessar página da turma %s: %w", turma.Nome, err)
+		return Noticia{}, nil, jsessionid, viewState, fmt.Errorf("erro ao acessar página da turma %s: %w", turma.Nome, err)
+	}
+
+	// Garante que realmente entramos NESTA turma antes de raspar qualquer coisa.
+	if err := verifyTurmaPage(doc, turma); err != nil {
+		return Noticia{}, nil, newJsessionid, "", err
 	}
 
 	newViewState, err := parseViewState(doc, "turma_"+turma.Nome)
@@ -1248,6 +1340,9 @@ func getPaginaFrequencia(turma TurmaData, jsessionid string, viewState string) (
 	)
 	if err != nil {
 		return 0, jsessionid, viewState, fmt.Errorf("erro ao acessar página de frequência %s: %w", turma.Nome, err)
+	}
+	if err := verifyTurmaPage(doc, turma); err != nil {
+		return 0, newJsessionid, "", fmt.Errorf("frequência: %w", err)
 	}
 	html, _ := doc.Html()
 	if strings.Contains(html, "A frequência ainda não foi lançada.") {

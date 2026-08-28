@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,11 +13,6 @@ import (
 	"google.golang.org/api/classroom/v1"
 	"google.golang.org/api/option"
 )
-
-// RequestBody representa o JSON esperado na requisição
-type RequestBody struct {
-	Matricula string `json:"matricula"`
-}
 
 // CourseResponse é a estrutura simplificada que enviaremos para o seu frontend
 type CourseResponse struct {
@@ -134,25 +130,56 @@ func getClient(ctx context.Context, matricula string) (*classroom.Service, error
 	return srv, nil
 }
 
-// HandleListCourses busca as turmas
-func HandleListCourses(c *gin.Context) {
-	var req struct {
-		Matricula string `json:"matricula"`
-	}
+// courseReq é o corpo comum a quase todas as rotas de /classroom.
+type courseReq struct {
+	Matricula string `json:"matricula" binding:"required"`
+	CourseID  string `json:"course_id"`
+}
+
+// classroomServiceFor lê o corpo, valida e devolve um serviço autenticado.
+// Em qualquer falha ele já responde ao cliente e retorna ok=false, então o
+// handler só precisa: srv, req, ok := classroomServiceFor(c); if !ok { return }
+func classroomServiceFor(c *gin.Context, needCourseID bool) (*classroom.Service, courseReq, bool) {
+	var req courseReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler o body. Esperado: matricula"})
-		return
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Corpo inválido. Esperado: matricula" + iff(needCourseID, " e course_id", "")})
+		return nil, req, false
+	}
+	if needCourseID && req.CourseID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "course_id é obrigatório"})
+		return nil, req, false
 	}
 
 	srv, err := getClient(c.Request.Context(), req.Matricula)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google", "details": err.Error()})
+		switch {
+		case errors.Is(err, ErrDBUnavailable):
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Serviço de integração com o Google temporariamente indisponível"})
+		default:
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google", "details": err.Error()})
+		}
+		return nil, req, false
+	}
+	return srv, req, true
+}
+
+func iff(cond bool, a, b string) string {
+	if cond {
+		return a
+	}
+	return b
+}
+
+// HandleListCourses busca as turmas
+func HandleListCourses(c *gin.Context) {
+	srv, _, ok := classroomServiceFor(c, false)
+	if !ok {
 		return
 	}
 
 	rSrv, err := srv.Courses.List().StudentId("me").CourseStates("ACTIVE").Do()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar cursos na API do Google"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao buscar cursos na API do Google"})
 		return
 	}
 
@@ -169,24 +196,14 @@ func HandleListCourses(c *gin.Context) {
 }
 
 func HandleListAssignments(c *gin.Context) {
-	var req struct {
-		Matricula string `json:"matricula"`
-		CourseID  string `json:"course_id"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
-		return
-	}
-
-	srv, err := getClient(c.Request.Context(), req.Matricula)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
+	srv, req, ok := classroomServiceFor(c, true)
+	if !ok {
 		return
 	}
 
 	rSrv, err := srv.Courses.CourseWork.List(req.CourseID).Do()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar atividades"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao buscar atividades"})
 		return
 	}
 
@@ -210,25 +227,14 @@ func HandleListAssignments(c *gin.Context) {
 
 // HandleListTopics busca os tópicos de uma turma
 func HandleListTopics(c *gin.Context) {
-	var req struct {
-		Matricula string `json:"matricula"`
-		CourseID  string `json:"course_id"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+	srv, req, ok := classroomServiceFor(c, true)
+	if !ok {
 		return
 	}
 
-	srv, err := getClient(c.Request.Context(), req.Matricula)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
-		return
-	}
-
-	// Faz a requisição para listar os tópicos do curso
 	rSrv, err := srv.Courses.Topics.List(req.CourseID).Do()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar tópicos na API do Google"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao buscar tópicos na API do Google"})
 		return
 	}
 
@@ -247,25 +253,14 @@ func HandleListTopics(c *gin.Context) {
 
 // HandleListAnnouncements busca os anúncios do mural de uma turma
 func HandleListAnnouncements(c *gin.Context) {
-	var req struct {
-		Matricula string `json:"matricula"`
-		CourseID  string `json:"course_id"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+	srv, req, ok := classroomServiceFor(c, true)
+	if !ok {
 		return
 	}
 
-	srv, err := getClient(c.Request.Context(), req.Matricula)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
-		return
-	}
-
-	// Faz a requisição para listar os anúncios do curso
 	rSrv, err := srv.Courses.Announcements.List(req.CourseID).Do()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar anúncios na API do Google"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao buscar anúncios na API do Google"})
 		return
 	}
 
@@ -286,25 +281,14 @@ func HandleListAnnouncements(c *gin.Context) {
 
 // HandleListMaterials busca os materiais de estudo de uma turma
 func HandleListMaterials(c *gin.Context) {
-	var req struct {
-		Matricula string `json:"matricula"`
-		CourseID  string `json:"course_id"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
+	srv, req, ok := classroomServiceFor(c, true)
+	if !ok {
 		return
 	}
 
-	srv, err := getClient(c.Request.Context(), req.Matricula)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
-		return
-	}
-
-	// Faz a requisição para listar os materiais do curso
 	rSrv, err := srv.Courses.CourseWorkMaterials.List(req.CourseID).Do()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar materiais na API do Google"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao buscar materiais na API do Google"})
 		return
 	}
 
@@ -326,18 +310,8 @@ func HandleListMaterials(c *gin.Context) {
 
 // HandleListSubmissions busca as submissões do próprio aluno nas atividades de uma turma
 func HandleListSubmissions(c *gin.Context) {
-	var req struct {
-		Matricula string `json:"matricula"`
-		CourseID  string `json:"course_id"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao ler body. Esperado: matricula e course_id"})
-		return
-	}
-
-	srv, err := getClient(c.Request.Context(), req.Matricula)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Aluno não autenticado no Google"})
+	srv, req, ok := classroomServiceFor(c, true)
+	if !ok {
 		return
 	}
 
@@ -345,7 +319,7 @@ func HandleListSubmissions(c *gin.Context) {
 	// O UserId("me") garante que estamos apenas vendo a situação do usuário autenticado.
 	rSrv, err := srv.Courses.CourseWork.StudentSubmissions.List(req.CourseID, "-").UserId("me").Do()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar submissões na API do Google"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao buscar submissões na API do Google"})
 		return
 	}
 

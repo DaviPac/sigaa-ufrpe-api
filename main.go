@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -31,10 +33,11 @@ import (
 // @name Authorization
 // @description Use "Bearer {jsessionid}"
 func main() {
-	if err := InitDB(); err != nil {
-		log.Fatalf("Falha crítica ao iniciar o banco: %v", err)
-	}
-	defer DB.Close()
+	// O banco só é usado pelas rotas /classroom. Se ele estiver indisponível,
+	// o servidor sobe do mesmo jeito e só essas rotas ficam degradadas.
+	InitDB(os.Getenv("DATABASE_URL"))
+	defer CloseDB()
+
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://sigaa-lite-ufrpe.vercel.app", "https://conecta-ufrpe.vercel.app", "http://localhost:4200", "https://mozilla.github.io"},
@@ -89,8 +92,14 @@ func main() {
 		classroomAPI.POST("/submissions", HandleListSubmissions)
 	}
 
-	log.Println("🚀 Servidor rodando em http://localhost:8080")
-	router.Run(":8080")
+	addr := ":8080"
+	if p := os.Getenv("PORT"); p != "" {
+		addr = ":" + p
+	}
+	log.Printf("🚀 Servidor rodando em http://localhost%s", addr)
+	if err := router.Run(addr); err != nil {
+		log.Fatalf("servidor encerrado: %v", err)
+	}
 }
 
 // @Summary Faz login no SIGAA
@@ -108,35 +117,42 @@ func handleLogin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
 		return
 	}
+	if req.Username == "" || req.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username e password são obrigatórios"})
+		return
+	}
 
-	jsessionid, err := repeatLoginReq(req.Username, req.Password, 0)
+	jsessionid, err := loginWithRetry(req.Username, req.Password, 5)
 	if err != nil {
-		fmt.Println(err)
 		if errors.Is(err, ErrInvalidCredentials) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Falha no login: %s", err)})
-		} else {
-			c.JSON(http.StatusBadGateway, gin.H{"error": "Falha ao se comunicar com o SIGAA. Tente novamente mais tarde."})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário ou senha inválidos"})
+			return
 		}
+		log.Printf("login: falha ao comunicar com o SIGAA: %v", err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Falha ao se comunicar com o SIGAA. Tente novamente mais tarde."})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"jsessionid": jsessionid})
 }
 
-func repeatLoginReq(username string, password string, count int) (string, error) {
-	jsessionid, err := Login(username, password)
-	if err != nil {
-		fmt.Println(err)
+// loginWithRetry tenta o login algumas vezes em caso de erro transitório
+// (rede/SIGAA fora), mas aborta imediatamente se as credenciais forem inválidas.
+func loginWithRetry(username, password string, attempts int) (string, error) {
+	var lastErr error
+	for i := 0; i < attempts; i++ {
+		jsessionid, err := Login(username, password)
+		if err == nil {
+			return jsessionid, nil
+		}
 		if errors.Is(err, ErrInvalidCredentials) {
 			return "", ErrInvalidCredentials
-		} else {
-			if count >= 5 {
-				return "", err
-			}
-			return repeatLoginReq(username, password, count+1)
 		}
+		lastErr = err
+		log.Printf("login: tentativa %d/%d falhou: %v", i+1, attempts, err)
+		time.Sleep(time.Duration(i+1) * 300 * time.Millisecond)
 	}
-	return jsessionid, nil
+	return "", lastErr
 }
 
 // @Summary Retorna dados principais (nome e turmas)
@@ -269,37 +285,47 @@ func handleGetTurmasStream(c *gin.Context) {
 	c.SSEvent("start", gin.H{"total": len(turmasBasicas)})
 	c.Writer.Flush()
 
-	// 3. Inicia o loop sequencial de raspagem
+	// 3. Loop sequencial de raspagem. Uma turma que falha não derruba o
+	// stream inteiro: emitimos o erro dela e re-sincronizamos o estado
+	// (jsessionid/viewState) a partir do portal antes de seguir.
 	for _, turmaBasica := range turmasBasicas {
-		// Proteção importante: Verifica se o usuário fechou o PWA/cancelou a request
-		// Isso evita que o backend continue raspando o SIGAA como um zumbi
+		// Se o cliente fechou a conexão, paramos de raspar o SIGAA à toa.
 		if c.Request.Context().Err() != nil {
 			log.Println("Cliente desconectou antes do fim do stream")
 			return
 		}
 
-		// Entra na turma, pega os detalhes e volta (estado atualizado)
 		turmaDetalhada, nextJsessionid, nextViewState, err := GetTurmaData(turmaBasica, currentJsessionid, currentViewState)
 		if err != nil {
-			// Informa erro de uma turma específica
 			c.SSEvent("error", gin.H{
-				"turma": turmaBasica, // manda qual falhou pra facilitar o debug
+				"turma": turmaBasica.Nome,
 				"error": "Falha ao ler turma: " + err.Error(),
 			})
 			c.Writer.Flush()
 
-			// Aqui você decide: 'return' para parar tudo, ou 'continue' para ignorar e tentar a próxima turma.
-			// Recomendo parar (return), pois o JSF do SIGAA provavelmente quebrou o viewState com o erro.
-			return
+			// Se a sessão expirou de vez, não adianta continuar.
+			if errors.Is(err, ErrSessaoExpirada) || errors.Is(err, ErrInvalidCredentials) {
+				return
+			}
+
+			// Recupera um estado limpo a partir do portal para as próximas turmas.
+			if _, _, _, _, _, _, reJsession, reViewState, reErr := GetMainData(currentJsessionid); reErr == nil {
+				currentJsessionid = reJsession
+				currentViewState = reViewState
+			} else {
+				// Sem conseguir re-sincronizar, encerramos.
+				c.SSEvent("error", gin.H{"error": "Não foi possível re-sincronizar a sessão: " + reErr.Error()})
+				c.Writer.Flush()
+				return
+			}
+			continue
 		}
 
-		// Atualiza as variáveis de estado para a próxima iteração do loop
 		currentJsessionid = nextJsessionid
 		currentViewState = nextViewState
 
-		// Emite os dados da turma coletada!
 		c.SSEvent("turma", turmaDetalhada)
-		c.Writer.Flush() // O Flush() é obrigatório para forçar o envio imediato do "chunk"
+		c.Writer.Flush()
 	}
 
 	// 4. Finaliza a transmissão enviando o viewState e jsessionid finais
@@ -319,107 +345,107 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token ausente ou inválido"})
 			return
 		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
+		token := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token vazio"})
+			return
+		}
+		// Aceita tanto "abc123" quanto "JSESSIONID=abc123"; normaliza para
+		// o formato de cookie que as funções do SIGAA esperam.
+		if !strings.Contains(token, "=") {
+			token = "JSESSIONID=" + token
+		}
 		c.Set("jsessionid", token)
 		c.Next()
 	}
 }
 
-func handleGetCalendarioURL(c *gin.Context) {
+const calendarioPageURL = "https://preg.ufrpe.br/br/calendario-academico"
+
+// resolveCalendarioPDFURL raspa a página da PREG e devolve a URL absoluta
+// do PDF do calendário acadêmico.
+func resolveCalendarioPDFURL() (string, error) {
+	req, err := http.NewRequest(http.MethodGet, calendarioPageURL, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("User-Agent", USER_AGENT)
+
+	res, err := externalHTTPClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("erro ao acessar a página da PREG: %w", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("PREG retornou status %d", res.StatusCode)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		return "", fmt.Errorf("erro ao processar HTML da PREG: %w", err)
+	}
+
+	selection := doc.Find(".field-items > .field-item.even")
+	href, exists := selection.Last().Children().Last().Find("a").Attr("href")
+	if !exists || href == "" {
+		return "", errors.New("link do PDF não encontrado na página da PREG")
+	}
+
+	if strings.HasPrefix(href, "/") {
+		href = "https://preg.ufrpe.br" + href
+	} else if !strings.HasPrefix(href, "http") {
+		href = "https://preg.ufrpe.br/" + href
+	}
+	return href, nil
+}
+
+// O calendário é um recurso público e sem credenciais; liberamos para
+// qualquer origem (o middleware global de CORS só cobre a allowlist).
+func publicCORS(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "*")
+}
 
+func handleGetCalendarioURL(c *gin.Context) {
+	publicCORS(c)
 	if c.Request.Method == http.MethodOptions {
 		c.Status(http.StatusOK)
 		return
 	}
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://preg.ufrpe.br/br/calendario-academico", nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-	res, err := client.Do(req)
+	url, err := resolveCalendarioPDFURL()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar a página"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
 	}
-	defer res.Body.Close()
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar HTML"})
-		return
-	}
-
-	selection := doc.Find(".field-items > .field-item.even")
-	url, exists := selection.Last().Children().Last().Find("a").Attr("href")
-	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "PDF não encontrado"})
-		return
-	}
-
-	if !strings.HasPrefix(url, "http") {
-		url = "https://preg.ufrpe.br" + url
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"url": url,
-	})
+	c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
 func handleGetCalendario(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "*")
-
+	publicCORS(c)
 	if c.Request.Method == http.MethodOptions {
 		c.Status(http.StatusOK)
 		return
 	}
-
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://preg.ufrpe.br/br/calendario-academico", nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-	res, err := client.Do(req)
+	url, err := resolveCalendarioPDFURL()
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Erro ao acessar o PDF: %v", err)
-		return
-	}
-	defer res.Body.Close()
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Erro ao acessar o PDF: %v", err)
+		c.String(http.StatusBadGateway, "%v", err)
 		return
 	}
 
-	selection := doc.Find(".field-items > .field-item.even")
-	url, exists := selection.Last().Children().Last().Find("a").Attr("href")
-	if !exists {
-		c.String(http.StatusNotFound, "Não foi possível encontrar o PDF")
-		return
-	}
-
-	if strings.HasPrefix(url, "/") {
-		url = "https://preg.ufrpe.br" + url
-	}
-
-	// Faz a requisição HTTP
-	resp, err := http.Get(url)
+	resp, err := externalHTTPClient.Get(url)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Erro ao acessar o PDF: %v", err)
+		c.String(http.StatusBadGateway, "Erro ao acessar o PDF: %v", err)
 		return
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		c.String(http.StatusBadGateway, "Servidor remoto retornou status %d", resp.StatusCode)
 		return
 	}
 
-	// Define cabeçalhos de resposta
 	c.Header("Content-Type", "application/pdf")
-	c.Header("Content-Disposition", "inline; filename=calendario_2025.pdf")
-
-	// Copia o conteúdo do PDF diretamente para a resposta HTTP
+	c.Header("Content-Disposition", "inline; filename=calendario.pdf")
 	io.Copy(c.Writer, resp.Body)
 }
 
@@ -580,24 +606,31 @@ func handlePostPrepararArquivo(c *gin.Context) {
 	// Faz a requisição pro SIGAA. Aqui o arquivo vem pra RAM do seu servidor Go.
 	resp, newJsessionid, newViewState, err := BaixarArquivoSigaa(jsessionid, req.ViewState, req.Chave, req.ID, req.Turma)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro no Sigaa"})
+		log.Printf("preparar arquivo: %v", err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao baixar arquivo do SIGAA: " + err.Error()})
 		return
 	}
 	defer resp.Body.Close()
 
-	// Lê o arquivo todo
-	fileBytes, _ := io.ReadAll(resp.Body)
+	// Lê o arquivo todo (limitado a 50 MB para não estourar a RAM do servidor).
+	fileBytes, err := io.ReadAll(io.LimitReader(resp.Body, 50<<20))
+	if err != nil {
+		log.Printf("preparar arquivo: erro ao ler corpo: %v", err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Erro ao ler arquivo do SIGAA"})
+		return
+	}
 
 	// Pega o nome do arquivo do header do Sigaa
 	filename := "arquivo_sigaa"
 	cd := resp.Header.Get("Content-Disposition")
-	if strings.Contains(cd, "filename=") {
+	if _, params, e := mime.ParseMediaType(cd); e == nil && params["filename"] != "" {
+		filename = params["filename"]
+	} else if strings.Contains(cd, "filename=") {
 		parts := strings.Split(cd, "filename=")
-		filename = strings.ReplaceAll(strings.Split(parts[1], ";")[0], "\"", "")
+		filename = strings.Trim(strings.Split(parts[1], ";")[0], `"`)
 	}
 
-	// Gera um ticket único
-	ticket := uuid.New().String() // ou gere uma string aleatória
+	ticket := uuid.New().String()
 
 	// Salva no cache
 	downloadCache.Store(ticket, CachedFile{
