@@ -3,6 +3,7 @@ package main
 import "errors"
 
 var ErrInvalidCredentials = errors.New("usuário ou senha inválidos")
+var ErrSessaoExpirada = errors.New("sessão inválida ou expirada")
 
 const (
 	FALTAS_INDEFINIDAS   = -2
