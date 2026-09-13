@@ -132,6 +132,25 @@ type EstruturaCurricular struct {
 	Componentes             []ComponenteCurricular `json:"componentes"`
 }
 
+type UnidadeBusca struct {
+	Codigo string `json:"codigo"`
+	Nome   string `json:"nome"`
+}
+
+type TurmaOferecida struct {
+	Turma      string `json:"turma"`      // Ex: "01"
+	AnoPeriodo string `json:"anoPeriodo"` // Ex: "2026.2"
+	Docente    string `json:"docente"`    // Ex: "FRANCIELLE SILVA DOS SANTOS (60h)"
+	Local      string `json:"local"`
+}
+
+type ComponenteOfertado struct {
+	IdComponentePublico string           `json:"idComponentePublico"` // id usado no detalhe público do componente
+	Codigo              string           `json:"codigo"`              // Ex: "06209"
+	Nome                string           `json:"nome"`                // Ex: "INTRODUÇÃO À COMPUTAÇÃO"
+	Turmas              []TurmaOferecida `json:"turmas"`
+}
+
 type DetalhesComponente struct {
 	Codigo            string   `json:"codigo"`
 	Nome              string   `json:"nome"`

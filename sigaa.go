@@ -14,14 +14,15 @@ import (
 )
 
 const (
-	URL_VIEW_LOGIN         = "https://sigs.ufrpe.br/sigaa/verTelaLogin.do"
-	URL_PORTAL_DISCENTE    = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
-	URL_FREQUENCIA         = "https://sigs.ufrpe.br/sigaa/ava/index.jsf"
-	USER_AGENT             = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-	URL_ATESTADO_MATRICULA = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
-	URL_CURRICULO          = "https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf"
-	URL_COMPONENTE         = "https://sigs.ufrpe.br/sigaa/graduacao/componente/lista.jsf"
-	URL_BUSCA_COMPONENTE   = "https://sigs.ufrpe.br/sigaa/geral/componente_curricular/busca_geral.jsf"
+	URL_VIEW_LOGIN           = "https://sigs.ufrpe.br/sigaa/verTelaLogin.do"
+	URL_PORTAL_DISCENTE      = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
+	URL_FREQUENCIA           = "https://sigs.ufrpe.br/sigaa/ava/index.jsf"
+	USER_AGENT               = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+	URL_ATESTADO_MATRICULA   = "https://sigs.ufrpe.br/sigaa/portais/discente/discente.jsf"
+	URL_CURRICULO            = "https://sigs.ufrpe.br/sigaa/public/curso/curriculo.jsf"
+	URL_COMPONENTE           = "https://sigs.ufrpe.br/sigaa/graduacao/componente/lista.jsf"
+	URL_BUSCA_COMPONENTE     = "https://sigs.ufrpe.br/sigaa/geral/componente_curricular/busca_geral.jsf"
+	URL_BUSCA_TURMAS_PUBLICA = "https://sigs.ufrpe.br/sigaa/public/turmas/listar.jsf"
 )
 
 var (
@@ -1057,6 +1058,132 @@ func getDetalhesComponente(jsessionid string, viewState string, idComponente str
 		return comp, newJsessionid, viewState, err
 	}
 	return comp, newJsessionid, viewState, nil
+}
+
+// getFormBuscaTurmasPublica busca o formulário público de "Consulta de
+// Turmas" do SIGAA (não exige sessão autenticada) e devolve o documento já
+// parseado junto do ViewState atual, usado tanto para listar as unidades
+// quanto como primeiro passo de buscarTurmasPublicas.
+func getFormBuscaTurmasPublica() (*goquery.Document, string, error) {
+	doc, _, err := doSigaaRequest("GET", URL_BUSCA_TURMAS_PUBLICA, "", "", nil, "")
+	if err != nil {
+		return nil, "", fmt.Errorf("erro ao acessar consulta de turmas: %w", err)
+	}
+	viewState, err := parseViewState(doc, "busca_turmas_publica")
+	if err != nil {
+		return nil, "", err
+	}
+	return doc, viewState, nil
+}
+
+// parseUnidadesBusca extrai as opções do <select> de unidade/departamento
+// do formulário de Consulta de Turmas (ignora a opção "-- SELECIONE --").
+func parseUnidadesBusca(doc *goquery.Document) []UnidadeBusca {
+	unidades := []UnidadeBusca{}
+	doc.Find("#formTurma\\:inputDepto option").Each(func(_ int, s *goquery.Selection) {
+		valor, _ := s.Attr("value")
+		if valor == "" || valor == "0" {
+			return
+		}
+		unidades = append(unidades, UnidadeBusca{
+			Codigo: valor,
+			Nome:   clearText(s.Text()),
+		})
+	})
+	return unidades
+}
+
+// buscarTurmasPublicas reproduz o formulário público de Consulta de Turmas
+// do SIGAA (nível de ensino + unidade + ano/período) e devolve as turmas
+// abertas encontradas, agrupadas por componente curricular.
+func buscarTurmasPublicas(nivel, unidade, ano, periodo string) ([]ComponenteOfertado, error) {
+	_, viewState, err := getFormBuscaTurmasPublica()
+	if err != nil {
+		return nil, err
+	}
+
+	payload := url.Values{}
+	payload.Set("formTurma", "formTurma")
+	payload.Set("formTurma:inputNivel", nivel)
+	payload.Set("formTurma:inputDepto", unidade)
+	payload.Set("formTurma:inputAno", ano)
+	payload.Set("formTurma:inputPeriodo", periodo)
+	payload.Set("formTurma:j_id_jsp_1370969402_11", "Buscar")
+	payload.Set("javax.faces.ViewState", viewState)
+
+	doc, _, err := doSigaaRequest(
+		"POST",
+		URL_BUSCA_TURMAS_PUBLICA,
+		"",
+		URL_BUSCA_TURMAS_PUBLICA,
+		strings.NewReader(payload.Encode()),
+		"application/x-www-form-urlencoded",
+	)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar turmas: %w", err)
+	}
+
+	return parseTurmasOfertadas(doc), nil
+}
+
+// parseTurmasOfertadas percorre a tabela de resultados (#turmasAbertas) da
+// Consulta de Turmas: cada "tr.agrupador" abre um componente curricular
+// novo (código - nome, e o id usado no link público de detalhes) e as
+// linhas seguintes até o próximo agrupador são as turmas abertas daquele
+// componente.
+func parseTurmasOfertadas(doc *goquery.Document) []ComponenteOfertado {
+	componentes := []ComponenteOfertado{}
+	var atual *ComponenteOfertado
+
+	doc.Find("#turmasAbertas table.listagem tbody tr").Each(func(_ int, tr *goquery.Selection) {
+		if tr.HasClass("agrupador") {
+			if atual != nil {
+				componentes = append(componentes, *atual)
+			}
+
+			titulo := clearText(tr.Find(".tituloDisciplina").Text())
+			codigo, nome := titulo, ""
+			if partes := strings.SplitN(titulo, " - ", 2); len(partes) == 2 {
+				codigo, nome = partes[0], partes[1]
+			}
+
+			id := ""
+			if onclick, ok := tr.Find("a").Attr("onclick"); ok {
+				if m := reJSFId.FindStringSubmatch(onclick); m != nil {
+					id = m[1]
+				}
+			}
+
+			atual = &ComponenteOfertado{
+				IdComponentePublico: id,
+				Codigo:              codigo,
+				Nome:                nome,
+				Turmas:              []TurmaOferecida{},
+			}
+			return
+		}
+
+		if atual == nil {
+			return
+		}
+
+		tds := tr.Find("td")
+		if tds.Length() < 4 {
+			return
+		}
+		atual.Turmas = append(atual.Turmas, TurmaOferecida{
+			Turma:      clearText(tds.Eq(0).Text()),
+			AnoPeriodo: clearText(tds.Eq(1).Text()),
+			Docente:    clearText(tds.Eq(2).Text()),
+			Local:      clearText(tds.Eq(3).Text()),
+		})
+	})
+
+	if atual != nil {
+		componentes = append(componentes, *atual)
+	}
+
+	return componentes
 }
 
 func getCurriculo(jsessionid string) (EstruturaCurricular, string, string, error) {

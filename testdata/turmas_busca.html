@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head><title>SIGAA - Consulta de Turmas</title></head>
+<body>
+<h2 class="title">Ensino &gt; Consulta de Turmas</h2>
+<form id="formTurma" name="formTurma" method="post" action="/sigaa/public/turmas/listar.jsf">
+  <select id="formTurma:inputNivel" name="formTurma:inputNivel" size="1">
+    <option value="">-- SELECIONE --</option>
+    <option value="G" selected="selected">GRADUAÇÃO</option>
+  </select>
+  <select id="formTurma:inputDepto" name="formTurma:inputDepto" size="1">
+    <option value="0"> -- SELECIONE -- </option>
+    <option value="530" selected="selected">DEPARTAMENTO DE COMPUTAÇÃO-DC - RECIFE</option>
+    <option value="517">DEPARTAMENTO DE ECONOMIA-DECON - RECIFE</option>
+  </select>
+  <input id="formTurma:inputAno" type="text" name="formTurma:inputAno" value="2026" />
+  <select id="formTurma:inputPeriodo" name="formTurma:inputPeriodo" size="1">
+    <option value="2" selected="selected">2</option>
+  </select>
+  <input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="j_id6" />
+</form>
+<div id="turmasAbertas">
+  <table class="listagem" width="95%">
+    <caption>2 turmas encontrada(s)</caption>
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Ano-Período</th>
+        <th>Docente</th>
+        <th>Local</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="agrupador">
+        <td colspan="4">
+          <a id="formTurma:aqui" href="#" onclick="if(typeof jsfcljs == 'function'){jsfcljs(document.getElementById('formTurma'),{'formTurma:aqui':'formTurma:aqui','id':'14140','publico':'public'},'');}return false">
+            <img src="/sigaa/img/view.gif" />
+            <span class="tituloDisciplina">06209 - INTRODUÇÃO À COMPUTAÇÃO</span>
+          </a>
+        </td>
+      </tr>
+      <tr class="linhaImpar">
+        <td class="turma" align="center"> 01</td>
+        <td class="anoPeriodo" align="center">2026.2</td>
+        <td class="nome">JOÃO DA SILVA (60h)</td>
+        <td nowrap="nowrap" align="center"> SALA 10</td>
+      </tr>
+      <tr class="agrupador">
+        <td colspan="4">
+          <a id="formTurma:aquij_id_51" href="#" onclick="if(typeof jsfcljs == 'function'){jsfcljs(document.getElementById('formTurma'),{'formTurma:aquij_id_51':'formTurma:aquij_id_51','id':'18223','publico':'public'},'');}return false">
+            <img src="/sigaa/img/view.gif" />
+            <span class="tituloDisciplina">14717 - GESTÃO DE PROCESSOS DE NEGÓCIO</span>
+          </a>
+        </td>
+      </tr>
+      <tr class="linhaPar">
+        <td class="turma" align="center"> 01</td>
+        <td class="anoPeriodo" align="center">2026.2</td>
+        <td class="nome">FRANCIELLE SILVA DOS SANTOS (60h)</td>
+        <td nowrap="nowrap" align="center"> SALA 36- CEAGRI 2</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

@@ -451,7 +451,44 @@ Retorna o arquivo binário com o `filename` original do SIGAA. O `ticket` é
 
 Ambas liberadas para qualquer origem (CORS `*`). `502` se a PREG estiver fora.
 
-### 5.3. Sobre a proteção "turma certa"
+### 5.3. Consulta de Turmas (catálogo de turmas ofertadas)
+
+Espelha a "Consulta de Turmas" pública do próprio SIGAA
+(`/sigaa/public/turmas/listar.jsf`) — **não** exige login nem
+`jsessionid`/`viewState`. Serve para descobrir a oferta de turmas de uma
+unidade num período (diferente de `/main-data`/`/matricula`, que só mostram
+as turmas em que o *aluno logado* já está matriculado).
+
+| Rota | Parâmetros | Resposta |
+|------|-----------|----------|
+| `GET /turmas/unidades` | — | `200 { "unidades": [{"codigo":"530","nome":"DEPARTAMENTO DE COMPUTAÇÃO-DC - RECIFE"}, ...] }` |
+| `GET /turmas/busca` | query: `unidade` (obrigatório, código de `/turmas/unidades`), `ano` (obrigatório), `periodo` (obrigatório, `1`-`8`), `nivel` (opcional, padrão `G`=Graduação) | `200 { "componentes": [ComponenteOfertado, ...] }` |
+
+`400` se faltar `unidade`, `ano` ou `periodo`. `500` se o SIGAA estiver fora
+ou devolver uma página inesperada.
+
+```jsonc
+// GET /turmas/busca?unidade=530&ano=2026&periodo=2
+{
+  "componentes": [
+    {
+      "idComponentePublico": "14140",
+      "codigo": "06209",
+      "nome": "INTRODUÇÃO À COMPUTAÇÃO",
+      "turmas": [
+        { "turma": "01", "anoPeriodo": "2026.2", "docente": "JOÃO DA SILVA (60h)", "local": "SALA 10" }
+      ]
+    }
+  ]
+}
+```
+
+> Essa página do SIGAA não tem filtro por nome/código de componente,
+> docente ou horário — a busca é sempre "todas as turmas abertas de uma
+> unidade num período". Refine no cliente a partir do resultado, se
+> necessário.
+
+### 5.4. Sobre a proteção "turma certa"
 
 Ao entrar numa turma virtual, o backend confere que a página carregada é
 **mesmo** da turma pedida (compara o nome). Se o SIGAA devolver a turma errada
@@ -535,6 +572,19 @@ Formato `<dias><turno><períodos>`, ex.: `2N34`, `7M2345`.
 - **Períodos:** dígitos sequenciais das aulas naquele turno
 
 `2N34` = segunda à noite, 3º e 4º horários. `2T45 5T23` = duas ocorrências.
+
+### 6.6. `ComponenteOfertado` (usado por `GET /turmas/busca`)
+
+```jsonc
+{
+  "idComponentePublico": "14140", // id do link público "Visualizar Detalhes"
+  "codigo": "06209",
+  "nome": "INTRODUÇÃO À COMPUTAÇÃO",
+  "turmas": [
+    { "turma": "01", "anoPeriodo": "2026.2", "docente": "JOÃO DA SILVA (60h)", "local": "SALA 10" }
+  ]
+}
+```
 
 ---
 

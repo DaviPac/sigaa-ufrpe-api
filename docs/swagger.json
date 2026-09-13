@@ -9,6 +9,71 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+        "/historico": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "SIGAA"
+                ],
+                "summary": "Retorna o PDF do Histórico do aluno",
+                "parameters": [
+                    {
+                        "description": "ViewState",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.HistoricoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Histórico em PDF",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "consumes": [
@@ -97,6 +162,65 @@
                 }
             }
         },
+        "/notas": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIGAA"
+                ],
+                "summary": "Baixa o HTML contendo notas",
+                "parameters": [
+                    {
+                        "description": "ViewState atual",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.NotasRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/turma": {
             "post": {
                 "security": [
@@ -113,16 +237,109 @@
                 "tags": [
                     "SIGAA"
                 ],
-                "summary": "Retorna dados detalhados de uma turma (POST)",
+                "summary": "Retorna dados estruturados do atestado de matrícula",
                 "parameters": [
                     {
-                        "description": "Turma e viewState",
+                        "description": "ViewState",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.TurmaPostRequest"
+                            "$ref": "#/definitions/main.MatriculaRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.AtestadoMatricula"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/turmas-stream": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "SIGAA"
+                ],
+                "summary": "Retorna dados detalhados das turmas em tempo real (SSE)",
+                "responses": {}
+            }
+        },
+        "/turmas/busca": {
+            "get": {
+                "description": "Endpoint público (sem autenticação) que consulta a Consulta de Turmas do SIGAA, devolvendo as turmas abertas agrupadas por componente curricular.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Turmas Públicas"
+                ],
+                "summary": "Busca turmas ofertadas por unidade e período",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Nível de ensino (padrão: G - Graduação)",
+                        "name": "nivel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Código da unidade/departamento",
+                        "name": "unidade",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ano do período letivo",
+                        "name": "ano",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Período letivo (1-8)",
+                        "name": "periodo",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -131,6 +348,86 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/turmas/unidades": {
+            "get": {
+                "description": "Endpoint público (sem autenticação) que devolve as opções de unidade/departamento do formulário de Consulta de Turmas do SIGAA.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Turmas Públicas"
+                ],
+                "summary": "Lista as unidades disponíveis na Consulta de Turmas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/vinculo": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "SIGAA"
+                ],
+                "summary": "Retorna o PDF do Vínculo do aluno",
+                "parameters": [
+                    {
+                        "description": "ViewState",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.VinculoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Vínculo em PDF",
+                        "schema": {
+                            "type": "file"
                         }
                     },
                     "400": {
@@ -165,6 +462,108 @@
         }
     },
     "definitions": {
+        "main.ArquivoCronograma": {
+            "type": "object",
+            "properties": {
+                "chave": {
+                    "description": "Ex: formAva:j_id_jsp_1879301362_314:2...",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Ex: 78BAF65DEA73ACA64CCC34BC50B6916D82289CDC",
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.AtestadoMatricula": {
+            "type": "object",
+            "properties": {
+                "codigoVerificacao": {
+                    "type": "string"
+                },
+                "curso": {
+                    "type": "string"
+                },
+                "matricula": {
+                    "type": "string"
+                },
+                "nivel": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "periodoLetivo": {
+                    "type": "string"
+                },
+                "turmas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.TurmaAtestado"
+                    }
+                },
+                "vinculo": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CronogramaItem": {
+            "type": "object",
+            "properties": {
+                "arquivos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.ArquivoCronograma"
+                    }
+                },
+                "conteudo": {
+                    "type": "string"
+                },
+                "titulo": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.DisciplinaNotas": {
+            "type": "object",
+            "properties": {
+                "codigo": {
+                    "type": "string"
+                },
+                "faltas": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "notas": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "resultado": {
+                    "type": "string"
+                },
+                "situacao": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.HistoricoRequest": {
+            "type": "object",
+            "required": [
+                "viewState"
+            ],
+            "properties": {
+                "viewState": {
+                    "type": "string"
+                }
+            }
+        },
         "main.LoginRequest": {
             "type": "object",
             "properties": {
@@ -176,24 +575,100 @@
                 }
             }
         },
+        "main.MatriculaRequest": {
+            "type": "object",
+            "required": [
+                "viewState"
+            ],
+            "properties": {
+                "viewState": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.NotasRequest": {
+            "type": "object",
+            "required": [
+                "viewState"
+            ],
+            "properties": {
+                "viewState": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.Noticia": {
+            "type": "object",
+            "properties": {
+                "conteudo": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "titulo": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.TurmaAtestado": {
+            "type": "object",
+            "properties": {
+                "codigo": {
+                    "type": "string"
+                },
+                "horario": {
+                    "type": "string"
+                },
+                "local": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "professor": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tipo": {
+                    "type": "string"
+                }
+            }
+        },
         "main.TurmaData": {
             "type": "object",
             "properties": {
+                "cronograma": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.CronogramaItem"
+                    }
+                },
                 "faltas": {
                     "type": "integer"
                 },
+                "horarios": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "info": {
                     "$ref": "#/definitions/main.TurmaInfo"
+                },
+                "local": {
+                    "type": "string"
                 },
                 "nome": {
                     "type": "string"
                 },
                 "notas": {
-                    "type": "array",
-                    "items": {
-                        "type": "number",
-                        "format": "float64"
-                    }
+                    "$ref": "#/definitions/main.DisciplinaNotas"
+                },
+                "noticia": {
+                    "$ref": "#/definitions/main.Noticia"
                 }
             }
         },
@@ -222,13 +697,19 @@
             ],
             "properties": {
                 "turma": {
-                    "description": "Envie o objeto TurmaData completo que você obteve em /main-data.\nSe você só tiver o Info.FrontEndId, envie um TurmaData com Info preenchido.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/main.TurmaData"
-                        }
-                    ]
+                    "$ref": "#/definitions/main.TurmaData"
                 },
+                "viewState": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.VinculoRequest": {
+            "type": "object",
+            "required": [
+                "viewState"
+            ],
+            "properties": {
                 "viewState": {
                     "type": "string"
                 }

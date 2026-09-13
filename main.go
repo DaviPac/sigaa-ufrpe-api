@@ -54,6 +54,8 @@ func main() {
 	router.GET("/calendario", handleGetCalendario)
 	router.GET("/turma/arquivo/download", handleGetDownload)
 	router.GET("/calendario/url", handleGetCalendarioURL)
+	router.GET("/turmas/unidades", handleGetUnidadesBusca)
+	router.GET("/turmas/busca", handleGetBuscaTurmas)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -705,5 +707,59 @@ func handlePostComponente(c *gin.Context) {
 		"componente": componente,
 		"jsessionid": newJsessionid,
 		"viewState":  viewState,
+	})
+}
+
+// handleGetUnidadesBusca godoc
+// @Summary Lista as unidades disponíveis na Consulta de Turmas
+// @Description Endpoint público (sem autenticação) que devolve as opções de unidade/departamento do formulário de Consulta de Turmas do SIGAA.
+// @Tags Turmas Públicas
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /turmas/unidades [get]
+func handleGetUnidadesBusca(c *gin.Context) {
+	doc, _, err := getFormBuscaTurmasPublica()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao acessar consulta de turmas: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"unidades": parseUnidadesBusca(doc),
+	})
+}
+
+// handleGetBuscaTurmas godoc
+// @Summary Busca turmas ofertadas por unidade e período
+// @Description Endpoint público (sem autenticação) que consulta a Consulta de Turmas do SIGAA, devolvendo as turmas abertas agrupadas por componente curricular.
+// @Tags Turmas Públicas
+// @Produce json
+// @Param nivel query string false "Nível de ensino (padrão: G - Graduação)"
+// @Param unidade query string true "Código da unidade/departamento"
+// @Param ano query string true "Ano do período letivo"
+// @Param periodo query string true "Período letivo (1-8)"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /turmas/busca [get]
+func handleGetBuscaTurmas(c *gin.Context) {
+	nivel := c.DefaultQuery("nivel", "G")
+	unidade := c.Query("unidade")
+	ano := c.Query("ano")
+	periodo := c.Query("periodo")
+
+	if unidade == "" || ano == "" || periodo == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Parâmetros obrigatórios: unidade, ano, periodo"})
+		return
+	}
+
+	componentes, err := buscarTurmasPublicas(nivel, unidade, ano, periodo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar turmas: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"componentes": componentes,
 	})
 }

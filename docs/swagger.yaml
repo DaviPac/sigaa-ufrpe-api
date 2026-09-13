@@ -1,5 +1,72 @@
 basePath: /
 definitions:
+  main.ArquivoCronograma:
+    properties:
+      chave:
+        description: 'Ex: formAva:j_id_jsp_1879301362_314:2...'
+        type: string
+      id:
+        description: 'Ex: 78BAF65DEA73ACA64CCC34BC50B6916D82289CDC'
+        type: string
+      nome:
+        type: string
+    type: object
+  main.AtestadoMatricula:
+    properties:
+      codigoVerificacao:
+        type: string
+      curso:
+        type: string
+      matricula:
+        type: string
+      nivel:
+        type: string
+      nome:
+        type: string
+      periodoLetivo:
+        type: string
+      turmas:
+        items:
+          $ref: '#/definitions/main.TurmaAtestado'
+        type: array
+      vinculo:
+        type: string
+    type: object
+  main.CronogramaItem:
+    properties:
+      arquivos:
+        items:
+          $ref: '#/definitions/main.ArquivoCronograma'
+        type: array
+      conteudo:
+        type: string
+      titulo:
+        type: string
+    type: object
+  main.DisciplinaNotas:
+    properties:
+      codigo:
+        type: string
+      faltas:
+        type: string
+      nome:
+        type: string
+      notas:
+        additionalProperties:
+          type: string
+        type: object
+      resultado:
+        type: string
+      situacao:
+        type: string
+    type: object
+  main.HistoricoRequest:
+    properties:
+      viewState:
+        type: string
+    required:
+    - viewState
+    type: object
   main.LoginRequest:
     properties:
       password:
@@ -7,19 +74,68 @@ definitions:
       username:
         type: string
     type: object
+  main.MatriculaRequest:
+    properties:
+      viewState:
+        type: string
+    required:
+    - viewState
+    type: object
+  main.NotasRequest:
+    properties:
+      viewState:
+        type: string
+    required:
+    - viewState
+    type: object
+  main.Noticia:
+    properties:
+      conteudo:
+        items:
+          type: string
+        type: array
+      titulo:
+        type: string
+    type: object
+  main.TurmaAtestado:
+    properties:
+      codigo:
+        type: string
+      horario:
+        type: string
+      local:
+        type: string
+      nome:
+        type: string
+      professor:
+        type: string
+      status:
+        type: string
+      tipo:
+        type: string
+    type: object
   main.TurmaData:
     properties:
+      cronograma:
+        items:
+          $ref: '#/definitions/main.CronogramaItem'
+        type: array
       faltas:
         type: integer
+      horarios:
+        items:
+          type: string
+        type: array
       info:
         $ref: '#/definitions/main.TurmaInfo'
+      local:
+        type: string
       nome:
         type: string
       notas:
-        items:
-          format: float64
-          type: number
-        type: array
+        $ref: '#/definitions/main.DisciplinaNotas'
+      noticia:
+        $ref: '#/definitions/main.Noticia'
     type: object
   main.TurmaInfo:
     properties:
@@ -35,15 +151,18 @@ definitions:
   main.TurmaPostRequest:
     properties:
       turma:
-        allOf:
-        - $ref: '#/definitions/main.TurmaData'
-        description: |-
-          Envie o objeto TurmaData completo que você obteve em /main-data.
-          Se você só tiver o Info.FrontEndId, envie um TurmaData com Info preenchido.
+        $ref: '#/definitions/main.TurmaData'
       viewState:
         type: string
     required:
     - turma
+    - viewState
+    type: object
+  main.VinculoRequest:
+    properties:
+      viewState:
+        type: string
+    required:
     - viewState
     type: object
 host: localhost:8080
@@ -53,6 +172,47 @@ info:
   title: SIGAA API
   version: "1.0"
 paths:
+  /historico:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ViewState
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/main.HistoricoRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: Histórico em PDF
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retorna o PDF do Histórico do aluno
+      tags:
+      - SIGAA
   /login:
     post:
       consumes:
@@ -109,25 +269,61 @@ paths:
       summary: Retorna dados principais (nome e turmas)
       tags:
       - SIGAA
-  /turma:
+  /notas:
     post:
       consumes:
       - application/json
       parameters:
-      - description: Turma e viewState
+      - description: ViewState atual
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/main.TurmaPostRequest'
+          $ref: '#/definitions/main.NotasRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
+            additionalProperties:
+              type: string
             type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Baixa o HTML contendo notas
+      tags:
+      - SIGAA
+  /turma:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ViewState
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/main.MatriculaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.AtestadoMatricula'
         "400":
           description: Bad Request
           schema:
@@ -148,7 +344,123 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Retorna dados detalhados de uma turma (POST)
+      summary: Retorna dados estruturados do atestado de matrícula
+      tags:
+      - SIGAA
+  /turmas-stream:
+    get:
+      produces:
+      - text/event-stream
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Retorna dados detalhados das turmas em tempo real (SSE)
+      tags:
+      - SIGAA
+  /turmas/busca:
+    get:
+      description: Endpoint público (sem autenticação) que consulta a Consulta de
+        Turmas do SIGAA, devolvendo as turmas abertas agrupadas por componente curricular.
+      parameters:
+      - description: 'Nível de ensino (padrão: G - Graduação)'
+        in: query
+        name: nivel
+        type: string
+      - description: Código da unidade/departamento
+        in: query
+        name: unidade
+        required: true
+        type: string
+      - description: Ano do período letivo
+        in: query
+        name: ano
+        required: true
+        type: string
+      - description: Período letivo (1-8)
+        in: query
+        name: periodo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Busca turmas ofertadas por unidade e período
+      tags:
+      - Turmas Públicas
+  /turmas/unidades:
+    get:
+      description: Endpoint público (sem autenticação) que devolve as opções de unidade/departamento
+        do formulário de Consulta de Turmas do SIGAA.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Lista as unidades disponíveis na Consulta de Turmas
+      tags:
+      - Turmas Públicas
+  /vinculo:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ViewState
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/main.VinculoRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: Vínculo em PDF
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retorna o PDF do Vínculo do aluno
       tags:
       - SIGAA
 securityDefinitions:
